@@ -1,0 +1,13 @@
+site_name: curso.dev notes
+nav:
+  - Home: index.md
+  - Setup do Ambiente:
+      - 01. Iniciando o setup do ambiente: setup_ambiente/01_setup_do_ambiente.md
+      - 02. Definindo a estrutura de testes: setup_ambiente/02_estrutura_de_testes.md
+      - 03. Definindo os Linters: setup_ambiente/03_linters.md
+  - Setup do Backend:
+      - 01. Criando uma página de status: setup_backend/01_pagina_status.md
+      - 02. Integrando um Banco de Dados local: setup_backend/02_banco_local.md
+
+theme:
+  name: readthedocs

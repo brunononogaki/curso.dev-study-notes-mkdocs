@@ -1,0 +1,21 @@
+services:
+  mkdocs:
+    image: python:3.11
+    labels:
+      # Traefik configuration
+      - "traefik.enable=true"
+      - "traefik.http.routers.mkdocs.rule=Host(`mkdocs.brunononogaki.com`)"
+      - "traefik.http.routers.mkdocs.entrypoints=websecure"
+      - "traefik.http.routers.mkdocs.tls=true"
+      - "traefik.http.services.mkdocs.loadbalancer.server.port=8000"
+      - "traefik.docker.network=my-network"
+    volumes:
+      - ./:/docs
+    networks:
+      - my-network      
+    working_dir: /docs
+    command: /bin/sh -c "pip install mkdocs && mkdocs serve -a 0.0.0.0:8000"    
+
+networks:
+  my-network:
+    external: true
