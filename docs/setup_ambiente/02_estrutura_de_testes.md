@@ -1,8 +1,9 @@
-# Definindo estrutura de pastas
+# Iniciando o setup do Test Runner (Jest)
 
 Agora vamos começar a definir como faremos os testes. Adoraremos o test runner Jest.
 
 ## Instalando o Jest
+
 Para instalar o Jester como dependência do projeto, é só dar um npm install. Mas instalaremos ele como dependência de dev, e não de produção:
 
 ```bash
@@ -10,6 +11,7 @@ npm install --save-dev jest@29.6.2
 ```
 
 Agora vamos editar o package.json para incluirmos atalhos para os testes. Já vamos definir a flag --runInBand, que faz com que ele rode os testes sequenciais e não paralelizados, o que pra gente facilita a vida principalmente quando formos testar integração com o banco de dados.
+
 <div>
     <strong>package.json</strong>
 </div>
@@ -23,21 +25,24 @@ Agora vamos editar o package.json para incluirmos atalhos para os testes. Já va
 ```
 
 ## Criando um teste de teste
+
 Vamos criar um teste simples, que não testa nada na verdade, mas é só pra ver o Jest em ação.
 Dentro da pasta tests, vamos criar um arquivo chamado exemplo.test.js:
+
 <div>
     <strong>tests/exemplo.test.js</strong>
 </div>
 
 ```javascript
 test("teste 1", () => {
-    expect(1).toBe(1);
-}); 
+  expect(1).toBe(1);
+});
 ```
 
 Esse teste vai simplesmente testar que 1 == 1. Bem útil!
 
 Para rodar o teste:
+
 ```bash
 npm test
 
@@ -55,6 +60,7 @@ Ran all test suites.
 ```
 
 Ou podemos rodar no modo watch, que vai ficar rodando o código sempre que tiver uma alteração:
+
 ```bash
  PASS  tests/exemplo.test.js
   ✓ teste 1 (3 ms)

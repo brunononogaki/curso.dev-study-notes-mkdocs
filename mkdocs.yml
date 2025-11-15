@@ -8,6 +8,10 @@ nav:
   - Setup do Backend:
       - 01. Criando uma página de status: setup_backend/01_pagina_status.md
       - 02. Integrando um Banco de Dados local: setup_backend/02_banco_local.md
+  - Database Migrations:
+      - 01. Configurando o node-pg-migrations: database_migrations/01_Configurando_node-pg-migrations.md
+      - 02. Criando os endpoints da API para migrations: database_migrations/02_Criando_API_Migration.md
+    
 
 theme:
   name: readthedocs
