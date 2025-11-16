@@ -13,9 +13,8 @@ nvm alias default lts/hydrogen
 ```
 
 Para definir essa versão padrão dentro do projeto:
-<div><strong>.nvmrc</strong></div>
 
-```bash
+```bash title=".nvmrc"
 lts/hydrogen
 ```
 
@@ -59,9 +58,8 @@ Vamos adicionar o nosso primeiro script e apagar esse de "test" que ele criou au
 ```
 
 Agora vamos criar um arquivo ``index.js`` em uma nova pasta chamada /pages/:
-<div><strong>/pages/index.js</strong></div>
 
-```javascript
+```javascript title="/pages/index.js"
 function Home() {
     return <h1>Teste</h1>
 }

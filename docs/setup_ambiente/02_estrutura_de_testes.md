@@ -12,11 +12,7 @@ npm install --save-dev jest@29.6.2
 
 Agora vamos editar o ``package.json`` para incluirmos atalhos para os testes. Já vamos definir a flag ``--runInBand``, que faz com que ele rode os testes sequenciais e não paralelizados, o que pra gente facilita a vida principalmente quando formos testar integração com o banco de dados.
 
-<div>
-    <strong>package.json</strong>
-</div>
-
-```javascript
+```javascript title="package.json"
   "scripts": {
     "dev": "next dev",
     "test": "jest --runInBand",
@@ -29,11 +25,7 @@ Agora vamos editar o ``package.json`` para incluirmos atalhos para os testes. J�
 Vamos criar um teste simples, que não testa nada na verdade, mas é só pra ver o Jest em ação.
 Dentro da pasta tests, vamos criar um arquivo chamado ``exemplo.test.js``:
 
-<div>
-    <strong>tests/exemplo.test.js</strong>
-</div>
-
-```javascript
+```javascript title="/tests/exemplo.test.js"
 test("teste 1", () => {
   expect(1).toBe(1);
 });

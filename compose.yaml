@@ -14,7 +14,7 @@ services:
     networks:
       - my-network      
     working_dir: /docs
-    command: /bin/sh -c "pip install mkdocs && mkdocs serve -a 0.0.0.0:8000"    
+    command: /bin/sh -c "pip install mkdocs && pip install mkdocs-material && mkdocs serve -a 0.0.0.0:8000"    
 
 networks:
   my-network:

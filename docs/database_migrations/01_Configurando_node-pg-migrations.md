@@ -11,9 +11,7 @@ npm install dotenv@16.4.4
 
 E vamos adicionar novos scripts no ``package.json``
 
-<div><strong>package.json</strong></div>
-
-```javascript
+```javascript title="package.json"
   "scripts": {
      ...
     "migration:create": "node-pg-migrate -m infra/migrations create",
@@ -45,9 +43,7 @@ exports.down = (pgm) => {};
 
 Para a migration funcionar, precisamos definir uma variável de ambiente **DATABASE_URL** contendo a connection string para o nosso banco de dados:
 
-<div><strong>.env.development</strong></div>
-
-```bash
+```bash title=".env.development"
 DATABASE_URL=postgres://devuser:devpassword@localhost:5432/postgres
 ```
 
@@ -59,9 +55,7 @@ npm install dotenv-expand
 
 Agora vamos deixar o nosso **.env.development** assim:
 
-<div><strong>.env.development</strong></div>
-
-```bash
+```bash title=".env.development"
 DATABASE_HOST=localhost
 DATABASE_PORT=5432
 POSTGRES_USER=devuser

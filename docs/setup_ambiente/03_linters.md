@@ -4,11 +4,8 @@ Para o Linter, vamos usar o ``Prettier``. Ele pode, e deve, ser instalado como e
 
 Primeiramente, vamos criar um arquivo ``.editorconfig``, que vai fazer o IDE formatar algumas coisas pra gente por padrão, como o tamanho da identação. Esse arquivo não altera nada do que já foi escrito, mas passa a valer depois de criado.
 
-<div>
-    <strong>/.editorconfig</strong>
-</div>
 
-```bash
+```bash title="/.editorconfig"
 root = true
 [*]
 indent_style = space
@@ -23,11 +20,7 @@ npm install --save-dev prettier
 
 E vamos adicionar os atalhos no ``package.json``.
 
-<div>
-    <strong>/package.json</strong>
-</div>
-
-```javascript
+```javascript title="/package.json"
   "scripts": {
     "lint:check": "prettier --check .",
     "lint:fix": "prettier --write .",
@@ -39,11 +32,7 @@ No VSCode, instale a extensão do Prettier, e ative ele como Default Formatter e
 
 Mas vamos criar um arquivo ``.prettierignore`` para ele ignorar algumas pastas, como a node_modules e .next:
 
-<div>
-    <strong>/.prettierignore</strong>
-</div>
-
-```bash
+```bash title="/.prettierignore"
 .next
 node_modules
 ```

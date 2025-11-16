@@ -7,11 +7,7 @@ Vamos criar um ``.env`` para definir o acesso ao banco. O Next.JS já carrega os
 
 Quando for para produção na Vercel, esses valores serão definidos nas envs da própria Vercel
 
-<div>
-    <strong>.env.development</strong>
-</div>
-
-```bash
+```bash title="/.env.development"
 DATABASE_HOST=localhost
 DATABASE_PORT=5432
 POSTGRES_USER=dbadmin
@@ -22,11 +18,7 @@ POSTGRES_DB=postgres
 ## Criando um docker-compose
 Agora vamos criar um arquivo ``compose.yml`` para subir o nosso PostgreSQL com Docker Compose. Já vamos aproveitar e criar esse arquivo na pasta /infra/
 
-<div>
-    <strong>/infra/compose.yaml</strong>
-</div>
-
-```yaml
+```yaml title="/infra/compose.yaml"
 services:
   database:
     container_name: database
@@ -59,11 +51,8 @@ npm install pg@8.11.3
 ```
 
 E criaremos um arquivo ``infra/database.js``.
-<div>
-    <strong>infra/database.js</strong>
-</div>
 
-```javascript
+```javascript title="/infra/database.js"
 import {Client} from "pg";
 
 async function query(queryObject) {
@@ -94,11 +83,8 @@ export default {
 ```
 
 Uma forma mais elegante de fazer é separar a conexão, para termos uma função que retorna uma instância conectada ao banco, que podemos utilizar mais pra frente em outros endpoints.
-<div>
-    <strong>infra/database.js (refatorada)</strong>
-</div>
 
-```javascript
+```javascript title="infra/database.js (refatorada)"
 import { Client } from "pg";
 
 async function query(queryObject) {
@@ -158,11 +144,7 @@ E confirme se a página continua retornando 200OK e se os testes estão passando
 ## Criando scripts de inicalização
 Vamos agora alterar o ``package.json`` e criar scripts que sobem a nossa infra toda:
 
-<div>
-    <strong>package.json</strong>
-</div>
-
-```javascript
+```javascript title="/package.json"
   "scripts": {
     "dev": "npm run services:up && next dev",
     "services:up": "docker compose -f infra/compose.yaml up -d",
@@ -274,11 +256,7 @@ Para o Banco de Dados em produção, podemos usar um serviço como o [neon.tech]
 
 E vamos editar os valores do nosso ``.env.development`, mas dentro das variáveis de ambiente da Vercel:
 
-<div>
-    <strong>.env.development (ambiente de desenvolvimento local)</strong>
-</div>
-
-```bash
+```bash title="/.env.development (ambiente de desenvolvimento local)"
 DATABASE_HOST=localhost
 DATABASE_PORT=5432
 POSTGRES_USER=dbadmin

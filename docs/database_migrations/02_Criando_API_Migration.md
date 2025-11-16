@@ -16,9 +16,7 @@ export default async function migration(request, response) {
 
 Através do **request.method**, podemos ver se o método que chamou a função é um GET, POST, PUT, etc. E através da documentação do node-pg-migrate, vemos que esse módulo tem um **migrationRunner**, que podemos chamar para rodar as migrações. Então vamos preencher o código assim:
 
-<div><strong>pages/api/v1/migration.js</strong></div>
-
-```javascript
+```javascript title="pages/api/v1/migration.js"
 import migrationRunner from "node-pg-migrate";
 import { join } from "node:path"; // serve para apontarmos um diretório no projeto, sem tem que usar "/" ou "\"
 
@@ -53,9 +51,7 @@ export default async function status(request, response) {
 
 Primeiramente, vamos criar os testes do GET:
 
-<div><strong>tests/integration/v1/migrations.get.test.js</strong></div>
-
-```javascript
+```javascript title="/tests/integration/v1/migrations.get.test.js"
 test("GET to /api/v1/migrations should return 200", async () => {
   const response = await fetch("http://localhost:3000/api/v1/migrations");
   expect(response.status).toBe(200);
@@ -76,9 +72,7 @@ import database from "infra/database.js";
 
 Motivo: o Jest não trabalha com imports ECMAScript como o Next, e não tem as ferramentas do Next.JS para importar os .env para o process.env, não em os absolute imports, etc. Então vamos criar um arquivo de configuração do jest para ele usar os "poderes" do Next:
 
-<div><strong>/jest.config.js</strong></div>
-
-```javascript
+```javascript title="/jest.config.js"
 // para esse import no arquivo de config, temos que usar esse método "antigo"
 const nextJest = require("next/jest");
 
@@ -101,9 +95,7 @@ module.exports = jestConfig;
 
 Agora sim, Jest configurado, podemos voltar no nosso arquivo de teste e limpar o banco. Para isso, podemos usar o **beforeAll** do Jest, que executa comandos antes de começar os testes.
 
-<div><strong>tests/integration/v1/migrations.get.test.js</strong></div>
-
-```javascript
+```javascript title="/tests/integration/v1/migrations.get.test.js"
 beforeAll(clearDatabase);
 async function clearDatabase() {
   await database.query("drop schema public cascade; create schema public");
@@ -125,9 +117,7 @@ Sucesso! Testes do GET funcionando!
 
 Vamos dar uma melhorada no código do migrations.js, que tem muita repetição de definição do banco. E podemos reaproveitar a função getNewClient() que exportamos do database.js, que retorna uma instância conectada do banco.
 
-<div><strong>pages/api/v1/migration.js</strong></div>
-
-```javascript
+```javascript title="/pages/api/v1/migration.js"
 import migrationRunner from "node-pg-migrate";
 import { join } from "node:path";
 import database from "infra/database.js";
@@ -170,9 +160,7 @@ export default async function migrations(request, response) {
 
 E agora é só criar os testes do post. Nesse teste, rodaremos o POST duas vezes. Na primeira ele tem que detectar uma migração e rodar ela, e na segunda, como a migração já vai ter acontecido, ele deve retornar 0 (nenhuma migração pendente):
 
-<div><strong>/tests/integration/api/v1/migrations/post.test.js</strong></div>
-
-```javascript
+```javascript title="/tests/integration/api/v1/migrations/post.test.js"
 import database from "infra/database.js";
 
 beforeAll(clearDatabase);
