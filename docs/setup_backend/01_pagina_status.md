@@ -1,10 +1,10 @@
 # Criando uma página de status
 
-Esse vai ser o nosso primeiro endpoint de API do app, que vai responder por **/api/v1/status**.
+Esse vai ser o nosso primeiro endpoint de API do app, que vai responder por ``/api/v1/status``.
 
 O NextJS adota o file-based routing, o que facilita muito na hora de criarmos as nossas rotas!
 
-Vamos criar a pasta /pages/api/v1, e criar um arquivo lá que nos retorna um JSON:
+Vamos criar a pasta ``/pages/api/v1``, e criar um arquivo lá que nos retorna um JSON:
 
 <div>
     <strong>/pages/api/v1/status.js</strong>

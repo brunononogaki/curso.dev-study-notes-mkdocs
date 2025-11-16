@@ -3,7 +3,7 @@
 Agora vamos subir um Banco de Dados Postgres para integrar com o nosso back-end. 
 
 ## Criando um .env
-Vamos criar um .env para definir o acesso ao banco. O Next.JS já carrega os .env automaticamente nas variáveis de ambiente, que podem ser lidas através do **process.env.NOME_DA_VARIAVEL**. Como estamos no ambiente de desenvolvimento, vamos criar o arquivo chamado **.env.development**.
+Vamos criar um ``.env`` para definir o acesso ao banco. O Next.JS já carrega os .env automaticamente nas variáveis de ambiente, que podem ser lidas através do ``process.env.NOME_DA_VARIAVEL``. Como estamos no ambiente de desenvolvimento, vamos criar o arquivo chamado ``.env.development``.
 
 Quando for para produção na Vercel, esses valores serão definidos nas envs da própria Vercel
 
@@ -20,7 +20,7 @@ POSTGRES_DB=postgres
 ```
 
 ## Criando um docker-compose
-Agora vamos criar um arquivo compose.yml para subir o nosso PostgreSQL com Docker Compose. Já vamos aproveitar e criar esse arquivo na pasta /infra/
+Agora vamos criar um arquivo ``compose.yml`` para subir o nosso PostgreSQL com Docker Compose. Já vamos aproveitar e criar esse arquivo na pasta /infra/
 
 <div>
     <strong>/infra/compose.yaml</strong>
@@ -46,19 +46,19 @@ Para subir o container com docker compose:
 docker compose --file infra/compose.yaml up -d --force-recreate
 ```
 
-Para testar a conexão local, podemos usar o psql
+Para testar a conexão local, podemos usar o ``psql``
 ```bash
 psql -h localhost -p 5432 -U dbadmin -d postgres
 ```
 
 ## Integrando o Back com o Banco de Dados
 
-Para integrar com o banco de dados, vamos usar o pg do npm
+Para integrar com o banco de dados, vamos usar o ``pg`` do npm
 ```bash
 npm install pg@8.11.3
 ```
 
-E criaremos um arquivo infra/database.js
+E criaremos um arquivo ``infra/database.js``.
 <div>
     <strong>infra/database.js</strong>
 </div>
@@ -156,7 +156,7 @@ E confirme se a página continua retornando 200OK e se os testes estão passando
 
 
 ## Criando scripts de inicalização
-Vamos agora alterar o package.json e criar scripts que sobem a nossa infra toda:
+Vamos agora alterar o ``package.json`` e criar scripts que sobem a nossa infra toda:
 
 <div>
     <strong>package.json</strong>
@@ -175,7 +175,7 @@ Vamos agora alterar o package.json e criar scripts que sobem a nossa infra toda:
   },
 ```
 
-Show! Agora é possível subir todo o nosso ambiente (container do Postgres + aplicação) com o comando **npm run dev**! Coisa linda! 😎
+Show! Agora é possível subir todo o nosso ambiente (container do Postgres + aplicação) com o comando ``npm run dev``! Coisa linda! 😎
 
 ## Retornando dados do banco
 Agora vamos retornar dados do Banco, como a versão e a quantidade de conexão que ele suporta:
@@ -268,14 +268,14 @@ Para resolver isso, basta fazer a query com parametros, assim:
 
 ## Subindo um banco em produção
 
-Para o Banco de Dados em produção, podemos usar um serviço como o neon.tech. Basta criar uma conta gratuita e iniciar um projeto novo. De lá, podemos pegar a Connection String, com os dados de conexão:
+Para o Banco de Dados em produção, podemos usar um serviço como o [neon.tech](https://neon.tech). Basta criar uma conta gratuita e iniciar um projeto novo. De lá, podemos pegar a Connection String, com os dados de conexão:
 
 ![image](static/neon_db.png)
 
-E vamos editar os valores do nosso .env, mas dentro das variáveis de ambiente da Vercel:
+E vamos editar os valores do nosso ``.env.development`, mas dentro das variáveis de ambiente da Vercel:
 
 <div>
-    <strong>.env.develop (ambiente de desenvolvimento local)</strong>
+    <strong>.env.development (ambiente de desenvolvimento local)</strong>
 </div>
 
 ```bash
