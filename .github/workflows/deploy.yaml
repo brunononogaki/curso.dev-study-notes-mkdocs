@@ -27,5 +27,5 @@ jobs:
             echo "📥 Atualizando código..."
             git pull origin main
             echo "🚀 Subindo containers..."
-            docker compose up -d --build
+            docker compose down && docker compose up -d --build
             echo "✅ Deploy concluído!"
