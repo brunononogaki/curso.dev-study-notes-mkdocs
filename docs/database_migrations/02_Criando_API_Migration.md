@@ -118,44 +118,63 @@ Sucesso! Testes do GET funcionando!
 Vamos dar uma melhorada no código do migrations.js, que tem muita repetição de definição do banco. E podemos reaproveitar a função getNewClient() que exportamos do database.js, que retorna uma instância conectada do banco.
 
 ```javascript title="/pages/api/v1/migration.js"
+
 import migrationRunner from "node-pg-migrate";
 import { join } from "node:path";
 import database from "infra/database.js";
 
 export default async function migrations(request, response) {
-  // Criando a variável defaultMigrationOptions com os dados do migrationRunner
-  const defaultMigrationOptions = {
-    databaseUrl: process.env.DATABASE_URL,
-    dryRun: true,
-    dir: join("infra", "migrations"),
-    verbose: true,
-    direction: "up",
-    migrationsTable: "pgmigrations",
-  };
-
-  // Se for um GET, rodamos como Dry Run mesmo
-  if (request.method === "GET") {
-    const pendingMigrations = await migrationRunner(defaultMigrationOptions);
-    return response.status(200).json(pendingMigrations);
+  // Limitando os métodos permitidos para GET e POST apenas
+  const allowedMethods = ["GET", "POST"];
+  if (!allowedMethods.includes(request.method)) {
+    return response
+      .status(405)
+      .json({ error: `Method "${request.method}" not allowed` });
   }
 
-  // Se for POST, temos que mudar o dryRun para false no JSON
-  if (request.method === "POST") {
-    const migratedMigrations = await migrationRunner({
-      ...defaultMigrationOptions,
-      dryRun: false,
-    });
+  let dbClient;
 
-    // retorno 201 se tinha alguma migração para fazer
-    if (migratedMigrations.length > 0) {
-      return response.status(201).json(migratedMigrations);
-    } else {
-      // retorno 200 se não tinha nenhuma migração pendente
-      return response.status(200).json(migratedMigrations);
+  try {
+    dbClient = await database.getNewClient();
+
+    // Criando a variável defaultMigrationOptions com os dados do migrationRunner
+    const defaultMigrationOptions = {
+      dbClient: dbClient,
+      dryRun: true,
+      dir: join("infra", "migrations"),
+      verbose: true,
+      direction: "up",
+      migrationsTable: "pgmigrations",
+    };
+
+    // Se for um GET, rodamos como Dry Run mesmo
+    if (request.method === "GET") {
+      const pendingMigrations = await migrationRunner(defaultMigrationOptions);
+      return response.status(200).json(pendingMigrations);
     }
+
+    // Se for POST, temos que mudar o dryRun para false no JSON
+    if (request.method === "POST") {
+      const migratedMigrations = await migrationRunner({
+        ...defaultMigrationOptions,
+        dryRun: false,
+      });
+      if (migratedMigrations.length > 0) {
+        // retorno 201 se tinha alguma migração para fazer
+        return response.status(201).json(migratedMigrations);
+      } else {
+        // retorno 200 se não tinha nenhuma migração pendente
+        return response.status(200).json(migratedMigrations);
+      }
+    }
+  } catch (err) {
+    console.error(err);
+    throw error;
+  } finally {
+    await dbClient.end();
   }
-  return response.status(405);
 }
+
 ```
 
 E agora é só criar os testes do post. Nesse teste, rodaremos o POST duas vezes. Na primeira ele tem que detectar uma migração e rodar ela, e na segunda, como a migração já vai ter acontecido, ele deve retornar 0 (nenhuma migração pendente):
@@ -191,3 +210,5 @@ test("POST to /api/v1/migrations should return 200", async () => {
   expect(responseBody2.length).toBe(0);
 });
 ```
+
+Agora já podemos subir esse código para o git, e rodar as migrações nos nossos bancos de Produção e Homologação, chamando as nossas APIs públicas! 🙌🙌🙌

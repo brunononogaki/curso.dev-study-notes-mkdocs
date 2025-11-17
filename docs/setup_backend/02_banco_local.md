@@ -247,36 +247,3 @@ Para resolver isso, basta fazer a query com parametros, assim:
     values: [process.env.POSTGRES_DB]
   });
 ```
-
-## Subindo um banco em produção
-
-Para o Banco de Dados em produção, podemos usar um serviço como o [neon.tech](https://neon.tech). Basta criar uma conta gratuita e iniciar um projeto novo. De lá, podemos pegar a Connection String, com os dados de conexão:
-
-![image](static/neon_db.png)
-
-E vamos editar os valores do nosso ``.env.development`, mas dentro das variáveis de ambiente da Vercel:
-
-```bash title="/.env.development (ambiente de desenvolvimento local)"
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
-POSTGRES_USER=dbadmin
-POSTGRES_PASSWORD=!lab@DD123
-POSTGRES_DB=postgres
-```
-
-Configuração na Vercel:
-![image](static/vercel_envs.png)
-
-Dessa forma, quando rodarmos o código no ambiente de produção, o retorno da API Status será assim:
-```json
-{
-  "updated_at": "2025-11-14T02:00:39.119Z",
-  "dependencies": {
-    "database": {
-      "version": "17.5 (aa1f746)",
-      "max_connections": 112,
-      "opened_connections": 1
-    }
-  }
-}
-```
