@@ -1,5 +1,4 @@
 # Git Overview
-
 Ao contrário de sistemas antigos como o CVS, que utilizavam _Delta Encoding_ (mantendo o histórico de alterações com base nos **diffs**), o Git trabalha com "fotos" completas do repositório.
 
 Quando fazemos um commit, o Git tira uma “foto” do estado atual do projeto. Para cada arquivo, ele calcula um identificador único com base no conteúdo e salva esse conteúdo na pasta `.git` como um objeto chamado Blob (Binary Large Object). Ao criar um novo commit, o Git verifica quais arquivos foram alterados:
@@ -36,7 +35,7 @@ Date:   Wed Nov 12 21:38:44 2025 -0300
 ...
 ```
 
-Ou use `git log --stat` para ter uma visão mais detalhada do que foi alterado em cada commit:
+Para uma visão mais detalhada do que foi alterado em cada commit, use `git log --stat`:
 
 ```bash
 commit 4cd6741adf5b1033ea47e8d622b0262113366130 (HEAD -> main, origin/main, origin/fix-migrations-endpoint, fix-migrations-endpoint)
@@ -51,13 +50,13 @@ Date:   Mon Nov 17 17:56:14 2025 -0300
 ...
 ```
 
-Ou ainda `git log --oneline` para uma visão mais resumida:
+Para uma visão resumida, use `git log --oneline`:
 
 ```bash
 4cd6741 (HEAD -> main, origin/main, origin/fix-migrations-endpoint, fix-migrations-endpoint) Implementing same fix as in class
 4531c8a adding try and catch
 d06fde4 Change header for preview test
-ecdfac3 adds api/v1/migrations endpoint
+ecdfac3d adds api/v1/migrations endpoint
 b6de408 Add migratios scripts
 247d618 Add SSL in Database connection
 93101ad Add throw error in database.js
@@ -70,14 +69,14 @@ f151262 Adicionando integração com banco de dados
 24a928e first commit
 ```
 
-## Os ~~três~~ quatro estágios do arquivo
+## Os quatro estágios do arquivo
 
 No Git, os arquivos podem estar em quatro estágios:
 
-- `untracked`: Arquivo que não está sob controle do Git (na verdade, para o Git, esse arquivo nem existe, então não seria propriamente um estágio)
-- `modified`: Arquivo já conhecido pelo Git, que foi alterado
-- `staged`: Dos arquivos alterados, aqueles que estão prontos para serem “fotografados”
-- `commit`: Arquivos já “fotografados”
+- **Untracked**: Arquivo que não está sob controle do Git (para o Git, esse arquivo nem existe).
+- **Modified**: Arquivo já conhecido pelo Git, que foi alterado.
+- **Staged**: Arquivos alterados que estão prontos para serem “fotografados”.
+- **Committed**: Arquivos já “fotografados”.
 
 Para acompanhar o estado dos arquivos, usamos o comando `git status`:
 
@@ -95,9 +94,8 @@ Untracked files:
         docs/setup_ambiente/04_Git_Overview.md
 ```
 
-Para incluir arquivos modificados na área de stage, usamos `git add`.
-
-Para salvar as alterações, fazemos o commit com `git commit -m "descrição do commit"`.
+- Para incluir arquivos modificados na área de stage, use `git add`.
+- Para salvar as alterações, faça o commit com `git commit -m "descrição do commit"`.
 
 Depois do commit, teremos uma nova “foto” desses arquivos, que pode ser visualizada com `git log`:
 
@@ -119,13 +117,13 @@ No exemplo acima, criamos um novo commit chamado "Adding git documentation".
 
 ## git commit --amend
 
-Depois de fazer o commit, a “foto” foi registrada. Mas se você quiser incluir uma nova alteração nesse mesmo commit, sem criar outro (evitando “sujar” o histórico), é possível usar:
+Se você quiser incluir uma nova alteração no último commit, sem criar outro (evitando “sujar” o histórico), use:
 
 ```bash
 git commit --amend
 ```
 
-Veja que antes de rodar esse comando, o último commit tinha o ID `f0203262c216b5fd4e311a22c2eac311224ea53a`:
+Antes de rodar esse comando, o último commit tinha o ID `f0203262c216b5fd4e311a22c2eac311224ea53a`:
 
 ```
 commit f0203262c216b5fd4e311a22c2eac311224ea53a (HEAD -> main)
@@ -169,33 +167,34 @@ git pull
 
 ## Criando uma branch
 
-Na prática, uma branch é apenas um apontamento para um commit específico, é como um apelido. E quando estamos em uma branch, o HEAD está apontando para ela. No exemplo abaixo, a branch main aponta para o commit 02db, enquanto a branch tamanho-do-cabelo aponta para o commit 5a0d. O HEAD está atualmente na branch tamanho-do-cabelo, mas mudar de branch é só mudar esse apontamento.
+Na prática, uma branch é apenas um apontamento para um commit específico, como um apelido. Quando estamos em uma branch, o HEAD está apontando para ela. No exemplo abaixo, a branch `main` aponta para o commit `02db`, enquanto a branch `tamanho-do-cabelo` aponta para o commit `5a0d`. O HEAD está atualmente na branch `tamanho-do-cabelo`, mas mudar de branch é só mudar esse apontamento.
 
-![alt text](static/branches_overview.png)
+![Visão geral das branches](static/branches_overview.png)
 
-Para saber em qual branch você está, é possível usar o comado `git branch`
+Para saber em qual branch você está, use o comando:
 
-> [!NOTE]
+```bash
+git branch
+```
+
 > Se o comando `git branch` estiver exibindo os dados em um editor de texto, você pode mudar esse comportamento com:
 >
 > git config --global core.pager cat
 
-Para criar uma branch, o comando é `git branch nova-branch`.
+- Para criar uma branch: `git branch nova-branch`
+- Para entrar na branch: `git checkout nova-branch`
+- Para fazer checkout em qualquer outro commit anterior: `git checkout 578b`
 
-Para entrar na branch: `git checkout nova-branch`
+![Checkout de commit antigo](static/checkout_commit_antigo.png)
 
-Também é possível fazer checkout em qualquer outro commit anterior, por exemplo: `git checkout 578b`
-![alt text](static/checkout_commit_antigo.png)
-
-E para criar uma nova branch e já fazer o checkout nela, fazemos: `git checkout -b nova-branch`
+- Para criar uma nova branch e já fazer o checkout nela: `git checkout -b nova-branch`
 
 ## Apagando uma branch
 
-Para apagar uma branch, usamos a flag -d: `git branch -d nova-branch`
+- Para apagar uma branch: `git branch -d nova-branch`
+- Se a branch não foi mesclada, o Git mostra um aviso. Para apagar mesmo assim: `git branch -D nova-branch`
 
-Mas caso a branch não tenha sido mesclada ainda, o Git mostra um aviso. Para apagar mesmo assim, use o `-D` maiúsculo: `git branch -D nova-branch`.
-
-Se você fez checkout de volta para a branch main e resolveu apagar sem querer a nova-branch, é só o ponteiro para o commit foi removido! Ou seja, os dados ainda estão preservados! Basta rodar `git reflog` para ver o histórico do repositório, descobrir qual era o commit que tem uma sitação que o seu código esteja funcionando e fazer checkout nele.
+Se você fez checkout de volta para a branch `main` e apagou sem querer a `nova-branch`, apenas o ponteiro para o commit foi removido! Os dados ainda estão preservados. Basta rodar `git reflog` para ver o histórico do repositório, descobrir qual era o commit que estava funcionando e fazer checkout nele.
 
 > [!NOTE]
 > Atenção: ao fazer isso, o HEAD estará apontando para um commit sem branch, chamado de "dangling".
@@ -203,17 +202,16 @@ Se você fez checkout de volta para a branch main e resolveu apagar sem querer a
 
 A partir desse commit, você pode criar uma nova branch com:
 
-```
+```bash
 git checkout -b nova-branch c5cc524
-
-Onde c5cc524 é o nome do commit
 ```
+Onde `c5cc524` é o nome do commit.
 
 ## Merge
 
 Existem dois tipos principais de merge:
 
-- `Fast-Forward`: Ocorre quando a branch de destino não tem commits novos em relação à branch que está sendo mesclada. Nesse caso, o Git simplesmente "avança" o ponteiro da branch de destino para o último commit da branch de origem, sem criar um novo commit de merge. É como se a história fosse linear.
+- **Fast-Forward**: Ocorre quando a branch de destino não tem commits novos em relação à branch que está sendo mesclada. O Git simplesmente "avança" o ponteiro da branch de destino para o último commit da branch de origem, sem criar um novo commit de merge. É como se a história fosse linear.
 
 Exemplo:
 
@@ -225,14 +223,14 @@ feature:     \
 
 Se não houve novos commits em `main` após o ponto de divergência, ao fazer o merge:
 
-```
+```bash
 git checkout main
 git merge feature
 ```
 
 O ponteiro de `main` vai direto para o commit D.
 
-- `3-Way Merge`: Acontece quando as duas branches tiveram commits diferentes após o ponto de divergência. O Git então cria um novo commit de merge, combinando as alterações das duas branches.
+- **3-Way Merge**: Acontece quando as duas branches tiveram commits diferentes após o ponto de divergência. O Git cria um novo commit de merge, combinando as alterações das duas branches.
 
 Exemplo:
 
@@ -244,7 +242,7 @@ feature:     \
 
 Aqui, `main` teve o commit E, enquanto `feature` teve C e D. Ao fazer o merge:
 
-```
+```bash
 git checkout main
 git merge feature
 ```
@@ -259,5 +257,34 @@ feature:     \     /
 
 Se houver conflitos (alterações em linhas iguais nos dois lados), o Git vai pedir para você resolver manualmente antes de concluir o merge.
 
-
 Esses são os dois tipos mais comuns de merge no Git. O Fast-Forward é mais simples e não deixa "marcas" na história, enquanto o 3-Way Merge preserva o histórico de desenvolvimento paralelo.
+
+## Estratégias de branching
+
+### Trunk-based development
+
+Usa como base a timeline principal (`main`, `trunk`, `mainline`). As alterações devem subir sempre para a branch principal. Mesmo quando criamos uma branch nova para corrigir algo, ela deve ser integrada à `main` o mais rápido possível.
+
+![Trunk-based development](static/tbd.png)
+
+A ideia é fazer integrações parciais e contínuas para que a branch principal esteja sempre atualizada. Cada desenvolvedor também atualiza sua branch com a `main` regularmente. Se todos deixarem para integrar só no final da sprint, haverá muitos conflitos para resolver e a `main` ficará parada.
+
+- **Branch by Abstraction**: Se um módulo precisa ser refatorado, primeiro criamos uma abstração acima dele (que já pode ser integrada, pois não impacta nada). Cada código que usa esse módulo é refatorado um a um para usar a abstração. Em paralelo, o módulo novo é desenvolvido. Depois que todos os códigos estiverem usando a abstração, o módulo antigo é apagado e os códigos passam a usar o módulo novo. Com essa estratégia, podemos sempre fazer merge para a `main`, sem esperar o módulo novo inteiro ficar pronto.
+
+![Branch by Abstraction](static/branch-by-abstraction.png)
+
+### Feature Branch (GitHub Flow)
+
+Para cada modificação (nova feature, ajuste de bug, etc), é criada uma branch nova. Trabalha-se nela até o final e, então, faz-se o merge para a branch principal. Ou seja, a branch principal está sempre pronta para produção, sem nada incompleto.
+
+Essa dinâmica ficou popular com o GitHub, que implementa o "Pull Request" e oferece ferramentas para revisão de código.
+
+![Feature Branch](static/featurebranch.png)
+
+### Git-Flow
+
+Tudo começa com a branch principal, mas ninguém mexe nela diretamente. O trabalho é feito em uma branch `develop`, e a partir dela se criam as feature branches. No final do desenvolvimento da feature, faz-se merge para a `develop`. Quando tudo da sprint está pronto, cria-se uma branch `release`, onde tudo é testado, e depois faz-se merge para a principal.
+
+Esse modelo foi criado em 2010. O próprio autor, Vincent Driessen, recomenda não tratar como dogma, pois hoje a maioria dos softwares são aplicações web entregues continuamente. Se a equipe já usa CD, ele recomenda estratégias mais simples, como o Feature Branch.
+
+![Git-Flow](static/gitflow.png)
