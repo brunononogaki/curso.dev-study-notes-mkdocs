@@ -13,6 +13,8 @@ nav:
   - Database Migrations:
       - 01. Configurando o node-pg-migrations: database_migrations/01_Configurando_node-pg-migrations.md
       - 02. Criando os endpoints da API para migrations: database_migrations/02_Criando_API_Migration.md
+  - Setup do CI/CD:
+      - 01. Estabilizando o ambiente local: setup_cicd/01_Estabilizando_Local.md
 
 theme:
   name: material
