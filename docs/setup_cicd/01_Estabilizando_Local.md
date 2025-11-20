@@ -151,7 +151,7 @@ export default {
 
 E agora vamos adicionar esse hook nos arquivos de teste:
 
-```javascript title="/tests/integration/api/v1/status/get.test.js
+```javascript title="/tests/integration/api/v1/status/get.test.js"
 import orchestrator from "tests/orchestrator";
 
 beforeAll(async () => {
@@ -159,7 +159,7 @@ beforeAll(async () => {
 });
 ```
 
-```javascript title="/tests/integration/api/v1/migration/get.test.js
+```javascript title="/tests/integration/api/v1/migration/get.test.js"
 import orchestrator from "tests/orchestrator";
 
 beforeAll(async () => {
@@ -168,7 +168,7 @@ beforeAll(async () => {
 });
 ```
 
-```javascript title="/tests/integration/api/v1/migration/post.test.js
+```javascript title="/tests/integration/api/v1/migration/post.test.js"
 import orchestrator from "tests/orchestrator";
 
 beforeAll(async () => {
@@ -199,7 +199,7 @@ Maassss, se adicionarmos um sleep de 5 segundos, aí sim os testes vão falhar:
 Isso porque o hook aguarda apenas 5s. Como waitForAllServices demorou mais que 5s, ele aborta.
 Para resolver isso, lá no `jest.config.js`, podemos aumentar esse timeout para 60s:
 
-```javascript title='/jest.config.js
+```javascript title="/jest.config.js"
 const nextJest = require("next/jest");
 const dotenv = require("dotenv");
 dotenv.config({
@@ -217,3 +217,5 @@ const jestConfig = createjestConfig({
 
 module.exports = jestConfig;
 ```
+
+Maravilha, agora os testes estão esperando o ambiente levantar. Vamos remover o timer que forçamos antes do `next dev` e concluir essa etapa.
