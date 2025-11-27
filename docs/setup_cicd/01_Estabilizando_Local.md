@@ -93,7 +93,7 @@ Agora sim, podemos voltar nos scripts e rodar o jest e o next de forma concorren
 
 ```bash title="package.json"
   "scripts": {
-    "test": "npm run services:up && npm run wait-for-postgres && concurrently --names next,jest --hide next 'next dev' 'jest --runInBand'",
+    "test": "npm run services:up && npm run wait-for-postgres && concurrently --names next,jest --hide next \"next dev\" \"jest --runInBand\"",
     ...
   },
 ```
@@ -109,7 +109,7 @@ Para o primeiro problema, podemos resolver com algumas parametrizações do `con
 
 ```bash title="package.json"
   "scripts": {
-    "test": "npm run services:up && npm run wait-for-postgres && concurrently --names next,jest --hide next --kill-others --success command-jest 'next dev' 'jest --runInBand'",
+    "test": "npm run services:up && npm run wait-for-postgres && concurrently --names next,jest --hide next --kill-others --success command-jest \"next dev\" \"jest --runInBand\"",
     ...
   },
 ```
@@ -135,12 +135,14 @@ async function waitForAllServices() {
   async function waitForWebServer() {
     return retry(fetchStatusPage, {
       retries: 100,
+      maxTimeout: 1000,      
     });
 
     async function fetchStatusPage() {
       const response = await fetch("http://localhost:3000/api/v1/status");
-      const responseBody = await response.json();
-    }
+      if (response.status !== 200) {
+        throw Error();
+      }
   }
 }
 
@@ -181,7 +183,7 @@ Agora sim, mesmo que a gente adicione um atraso de 1s no next dev, os testes vã
 
 ```bash title="package.json"
   "scripts": {
-    "test": "npm run services:up && npm run wait-for-postgres && concurrently --names next,jest --hide next --kill-others --success command-jest 'sleep 1; next dev' 'jest --runInBand'",
+    "test": "npm run services:up && npm run wait-for-postgres && concurrently --names next,jest --hide next --kill-others --success command-jest \"sleep 1; next dev\" \"jest --runInBand\"",
     ...
   },
 ```

@@ -15,6 +15,10 @@ nav:
       - 02. Criando os endpoints da API para migrations: database_migrations/02_Criando_API_Migration.md
   - Setup do CI/CD:
       - 01. Estabilizando o ambiente local: setup_cicd/01_Estabilizando_Local.md
+  - Outras paradas (não é do curso!):
+      - Django Ninja:
+        - 01. Criando o ambiente Poetry: outras_coisas/django_api/01_Ambiente_Poetry.md  
+        - 02. Configurando o Django: outras_coisas/django_api/02_Configurando_Django.md
 
 theme:
   name: material
