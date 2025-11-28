@@ -77,6 +77,10 @@ POSTGRES_DB=postgres
 
 SECRET_KEY='mysecretkey-dev'
 ALLOWED_HOSTS=localhost,127.0.0.1,.brunononogaki.com
+
+DJANGO_ADMIN_USER = 'admin'
+DJANGO_ADMIN_EMAIL = 'admin@admin.com'
+DJANGO_ADMIN_PASWORD = 'devpassword'
 ```
 
 ## Instalando ferramentas de Dev
@@ -113,6 +117,7 @@ test = 'task create-env-dev && task services-up && python infra/wait-for-postgre
 test-watch = 'pytest-watch'
 lint = 'ruff check'
 format = 'ruff format'
+migrate = 'python manage.py makemigrations && python manage.py migrate'
 ```
 
 - Configurando o Ruff:
@@ -265,6 +270,7 @@ test = 'task create-env-dev && task services-up && python infra/wait-for-postgre
 test-watch = 'pytest-watch'
 lint = 'ruff check'
 format = 'ruff format'
+migrate = 'python manage.py makemigrations && python manage.py migrate'
 ```
 
 Veja que o `task run` vai fazer o seguinte:

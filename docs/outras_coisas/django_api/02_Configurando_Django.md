@@ -299,6 +299,61 @@ Agora uma forma legal de programar no VSCode é dividir o terminal em dois. Em u
 
 ![alt text](static/tests_vscode.png)
 
+
+## Criando usuário admin padrão
+Para criar um "super user" no Django, o comando é `python manage.py createsuperuser`. Mas seria legal se a gente pudesse já por padrão criar esse usuário na inicialização do serviço. Mais especificamente, vamos criar o superuser automaticamente depois de rodar a migration.
+
+Para isso, vamos adicionar um script no `myapi/core/apps.py`:
+
+```python title="myapi/core/apps.py"
+from django.apps import AppConfig
+
+
+class CoreConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'myapi.core'
+ 
+    def ready(self):
+        # Create/update default superuser after migrations run.
+        # Keep imports local to avoid side-effects during Django startup.
+        from django.db.models.signals import post_migrate
+        from django.contrib.auth import get_user_model
+        from decouple import config
+
+        def create_default_superuser(sender, **kwargs):
+            User = get_user_model()
+            username = config('DJANGO_ADMIN_USER', default='admin')
+            email = config('DJANGO_ADMIN_EMAIL', default='admin@admin.com')
+            password = config('DJANGO_ADMIN_PASSWORD', default='devpassword')
+
+            try:
+                existing = User.objects.filter(username=username).first()
+                if existing:
+                    changed = False
+                    if not existing.is_superuser:
+                        existing.is_superuser = True
+                        changed = True
+                    if not existing.is_staff:
+                        existing.is_staff = True
+                        changed = True
+                    if email and getattr(existing, 'email', None) != email:
+                        existing.email = email
+                        changed = True
+                    if password:
+                        existing.set_password(password)
+                        changed = True
+                    if changed:
+                        existing.save()
+                else:
+                    # create_superuser will set is_superuser and is_staff
+                    User.objects.create_superuser(username=username, email=email, password=password)
+            except Exception:
+                # Don't raise during migrate; fail silently to avoid breaking deploys.
+                pass
+
+        post_migrate.connect(create_default_superuser, sender=self)
+```
+
 ## Estrutura do projeto até agora
 
 Por enquanto, a estrutura do nosso projeto está assim:
