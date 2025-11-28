@@ -91,7 +91,7 @@ poetry add --dev pytest-cov
 poetry add --dev pytest-watch
 poetry add --dev ruff               # Linter
 poetry add --dev taskipy            # Atalho para comandos
-poetry add --dev honcho             # Rodar rotinas em paralelo, como o concurrency, que se usa no curso.dev
+poetry add --dev honcho             # Rodar rotinas em paralelo, como o concurrently, que se usa no curso.dev
 ```
 
 - Configurando o Taskipy:
@@ -302,7 +302,7 @@ Esse comando vai criar o link simbólico do .env, subir o banco Postgres, espera
 
 Então até agora, o nosso `pyproject.toml` tá assim:
 
-```toml title="pyproject.toml
+```toml title="pyproject.toml"
 [project]
 name = "django-ninja-boilerplate"
 version = "0.1.0"
