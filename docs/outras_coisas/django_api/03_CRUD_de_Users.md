@@ -71,7 +71,7 @@ Agora se entrarmos no admin do Django, veremos que o ID do usuário admin (que f
 ### Get
 Vamos começar com um GET simples na lista de usuários. Mas antes disso, vamos criar um Schema de Users. Como o Django já implementa por padrão o Model de Users, a gente pode usar um objeto chamado `ModelSchema` para criar automaticamente o Schema a partir do Model. Vamos usar bastante isso mais pra frente. Então para criar um Schema para Users, poderíamos fazer simplesmente isso:
 
-```python title="myapi/core/schemas.py
+```python title="myapi/core/schemas.py"
 # core/schemas.py
 from ninja import ModelSchema, Schema
 
@@ -86,7 +86,7 @@ class UserSchema(ModelSchema):
 ```
 
 Mas atenção, que isso exporia todos os campos do Model User, inclusive a senha, então poderíamos fazer assim para excluir alguns campos:
-```python title="myapi/core/schemas.py
+```python title="myapi/core/schemas.py"
 # core/schemas.py
 from ninja import ModelSchema, Schema
 
