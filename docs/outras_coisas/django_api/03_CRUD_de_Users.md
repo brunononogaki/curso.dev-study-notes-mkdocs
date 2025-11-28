@@ -118,7 +118,11 @@ class UserSchema(ModelSchema):
 
 Uma outra forma de criar nosso Schema é com o método create_schema, e podemos aproveitar e trazer a lista de grupos de o usuário faz parte, usando o `depth = 1`:
 ```python title="myapi/core/schemas.py"
+from django.contrib.auth import get_user_model
 from ninja.orm import create_schema
+
+# Use configured user model so schemas work with AUTH_USER_MODEL
+User = get_user_model()
 
 UserSchemaWithGroups = create_schema(
     User,
