@@ -190,12 +190,14 @@ def test_list_users(client):
 
 @pytest.mark.django_db
 def test_get_user_detail(client):
-    response = client.get('/api/v1/users')
+    # Obtendo o ID do usuário admin
+    User = get_user_model()
+    admin = User.objects.get(username=config('DJANGO_ADMIN_USER'))
+    response = client.get(f'/api/v1/users/{admin.id}')
     data = response.json()
 
     assert response.status_code == HTTPStatus.OK
-    assert data['count'] == 1
-    assert data['items'][0]['username'] == 'admin'
+    assert data['username'] == config('DJANGO_ADMIN_USER')
 ```
 
 ### Post
@@ -572,6 +574,7 @@ def patch_user(request, id: uuid.UUID, payload: UserPatchSchema):
 ```python title="myapi/core/tests/test_users.py"
 import json
 from http import HTTPStatus
+from django.contrib.auth import get_user_model
 
 import pytest
 
@@ -588,13 +591,13 @@ def test_list_users(client):
 
 @pytest.mark.django_db
 def test_get_user_detail(client):
-    response = client.get('/api/v1/users')
+    User = get_user_model()
+    admin = User.objects.get(username=config('DJANGO_ADMIN_USER'))
+    response = client.get(f'/api/v1/users/{admin.id}')
     data = response.json()
 
     assert response.status_code == HTTPStatus.OK
-    assert data['count'] == 1
-    assert data['items'][0]['username'] == 'admin'
-
+    assert data['username'] == config('DJANGO_ADMIN_USER')
 
 @pytest.mark.django_db
 def test_create_users_success(client):

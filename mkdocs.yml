@@ -20,6 +20,7 @@ nav:
         - 01. Criando o ambiente Poetry: outras_coisas/django_api/01_Ambiente_Poetry.md  
         - 02. Configurando o Django: outras_coisas/django_api/02_Configurando_Django.md
         - 03. Fazendo o CRUD de Users: outras_coisas/django_api/03_CRUD_de_Users.md
+        - 04. Implementando autenticação e autorização: outras_coisas/django_api/04_Autenticacao_e_Autorizacao.md
 
 theme:
   name: material
