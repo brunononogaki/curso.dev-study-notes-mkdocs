@@ -60,7 +60,7 @@ E agora no `myapi/settings.py`, vamos incluir o seguinte:
 - Adicionar a nossa app `core` em `INSTALLED_APPS`, junto com a extensão `django_extensions`, que poderemos usar mais pra frente
 - Configurar o Banco de Dados Postgres ao invés do SQLIte
 
-```python title="settings.py"
+```python title="settings.py" hl_lines="12-13"
 from decouple import Csv, config
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())

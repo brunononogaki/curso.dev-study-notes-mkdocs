@@ -57,14 +57,16 @@ requires-python = ">=3.13,<4.0"
 poetry shell
 ```
 
-- Agora vamos criar um projeto Django:
+- Agora vamos criar um projeto Django. Pode ser o nome que quiser, nesse exemplo chamarei de `myapi`:
 
 ```bash
 django-admin startproject myapi .
-
-Nota: Pode dar o nome que quiser, no meu caso, chamarei o projeto de "myapi"
-Nota2: Se o comando poetry shell não funcionar, rode esses comandos como poetry run django-admin startproject myapi .
 ```
+
+!!! note
+
+    Se o comando poetry shell não funcionar, rode esses comandos como poetry run django-admin startproject myapi .
+
 
 - Crie um arquivo `.env.development` no diretório raíz. Já vamos deixar criado umas coisas que usaremos mais pra frente.
 
@@ -372,4 +374,7 @@ lint = 'ruff check'
 format = 'ruff format'
 ```
 
-Boa! Agora a seguir a gente vai configurar o Django e criar nossa primeira aplicação! 😎
+!!! success
+
+    Boa! Agora a seguir a gente vai configurar o Django e criar nossa primeira aplicação! 😎
+

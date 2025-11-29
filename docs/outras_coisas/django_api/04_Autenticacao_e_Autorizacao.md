@@ -2,7 +2,7 @@
 
 ## Autenticação JWT
 
-Vamos implantar a autenticação por meio de tokens JWT. Para isso, vamos instalar o PyJWT
+Vamos implantar a autenticação por meio de tokens JWT. Para isso, vamos instalar o `PyJWT`
 
 ```bash
 poetry add PyJWT
@@ -68,7 +68,7 @@ class ErrorSchema(Schema):
 
 Agora sim vamos criar a rota de `login`:
 
-```python title="myapi/core/api.py"
+```python title="myapi/core/api.py" hl_lines="10-11"
 from django.contrib.auth import get_user_model, authenticate
 from .auth import create_token, JWTAuth
 
@@ -93,7 +93,7 @@ def login(request, username: str = Form(...), password: str = Form(...)):
 
 E agora para proteger uma rota é só colocar um `auth=JWTAuth()`:
 
-```python title="myapi/core/api.py"
+```python title="myapi/core/api.py" hl_lines="6"
 @router.get(
     'users',
     response=list[UserWithGroupsSchema],
@@ -337,7 +337,9 @@ def test_patch_user(client, create_admin_access_token):
     assert response_json['email'] == 'newemail@admin.com'
 ```
 
-Agora temos a autenticação funcionando, assim com todos os testes que dependem dela! 🙌🙌🙌
+!!! success
+
+    Agora temos a autenticação funcionando, assim com todos os testes que dependem dela! 🙌🙌🙌
 
 ## Autorização
 
@@ -849,7 +851,7 @@ def patch_user(request, id: uuid.UUID, payload: UserPatchSchema):
 
 ########
 # AUTH
-#######
+########
 @router.post('login', tags=['Auth'], response={200: TokenResponse, 401: ErrorSchema})
 def login(request, username: str = Form(...), password: str = Form(...)):
     user = authenticate(username=username, password=password)
