@@ -1,4 +1,6 @@
 site_name: curso.dev notes
+repo_name: brunononogaki/django-ninja-boilerplate
+repo_url: https://github.com/brunononogaki/django-ninja-boilerplate
 nav:
   - Home: index.md
   - Setup do Ambiente:
