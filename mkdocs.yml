@@ -24,6 +24,7 @@ nav:
         - 02. Configurando o Django: outras_coisas/django_api/02_Configurando_Django.md
         - 03. Fazendo o CRUD de Users: outras_coisas/django_api/03_CRUD_de_Users.md
         - 04. Implementando autenticação e autorização: outras_coisas/django_api/04_Autenticacao_e_Autorizacao.md
+        - 05. Implementando CI/CD: outras_coisas/django_api/05_Implementando_CI_CD.md
 
 theme:
   name: material
