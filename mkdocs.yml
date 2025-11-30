@@ -1,6 +1,5 @@
 site_name: curso.dev notes
-repo_name: brunononogaki/django-ninja-boilerplate
-repo_url: https://github.com/brunononogaki/django-ninja-boilerplate
+
 nav:
   - Home: index.md
   - Setup do Ambiente:
@@ -18,13 +17,6 @@ nav:
   - Setup do CI/CD:
       - 01. Estabilizando o ambiente local: setup_cicd/01_Estabilizando_Local.md
       - 02. Criando os testes no CI com GH Actions: setup_cicd/02_Testes_no_CI(GH_Actions).md  
-  - Outras paradas (não é do curso!):
-      - Django Ninja:
-        - 01. Criando o ambiente Poetry: outras_coisas/django_api/01_Ambiente_Poetry.md  
-        - 02. Configurando o Django: outras_coisas/django_api/02_Configurando_Django.md
-        - 03. Fazendo o CRUD de Users: outras_coisas/django_api/03_CRUD_de_Users.md
-        - 04. Implementando autenticação e autorização: outras_coisas/django_api/04_Autenticacao_e_Autorizacao.md
-        - 05. Implementando CI/CD: outras_coisas/django_api/05_Implementando_CI_CD.md
 
 theme:
   name: material
