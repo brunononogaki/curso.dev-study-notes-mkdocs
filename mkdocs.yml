@@ -32,7 +32,10 @@ theme:
   features:
     - content.code.copy
     - content.code.annotate
-
+    - navigation.expand
+    - search.highlight
+    - search.suggest
+    
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
