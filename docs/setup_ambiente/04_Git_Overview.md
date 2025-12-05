@@ -313,7 +313,9 @@ E para resolver isso, vamos fazer o `rebase`. Ou seja, refazer a base da nossa b
 
 !!! tip
     
-    Caso seja necessário editar commits no passado, você pode fazer um rebase até um commit antigo, e ir adicionado os commits um a um de forma interativa. Com o `git log` você pega o histórico de commits, e faz um `git rebase -i {id_commit}`. No arquivo git-rebase-todo que vai abrir, deixe como `pick` os commits que você não quer mexer; `edit` para editar; `reword` para alterar a mensagem de commit. Salve e feche o arquivo.
+    Caso seja necessário editar commits no passado, você pode fazer um rebase até um commit antigo, e ir adicionado os commits um a um de forma interativa. Com o `git log` você pega o histórico de commits, e faz um `git rebase -i {id_commit}`. É possível fazer também algo como `git rebase -i HEAD~2`, para voltar 2 commits do Head, por exemplo.
+    
+    No arquivo git-rebase-todo que vai abrir, deixe como `pick` os commits que você não quer mexer; `edit` para editar; `reword` para alterar a mensagem de commit. Salve e feche o arquivo.
 
     Se você tiver algum commit marcado como `edit`, ele vai parar nesse commit para você poder editar o que quiser. Depois de fazer as suas alterações, faça com `git add -A`, e depois um `git commit --ammend` para adicionar esse commit. Se quiser, pode usar a flag `--no-edit` para nem ter que mudar a mensagem de commit. Para continuar com o rebase, faça `git rebase --continue`.
 

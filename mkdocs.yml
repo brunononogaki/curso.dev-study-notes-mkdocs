@@ -20,6 +20,7 @@ nav:
   - Setup do CI/CD:
       - 01. Estabilizando o ambiente local: setup_cicd/01_Estabilizando_Local.md
       - 02. Criando os testes no CI com GH Actions: setup_cicd/02_Testes_no_CI(GH_Actions).md  
+      - 03. Linting de Commits: setup_cicd/03_Linting_de_Commits.md  
 
 theme:
   name: material
