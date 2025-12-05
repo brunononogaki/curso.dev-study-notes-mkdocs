@@ -93,7 +93,7 @@ Agora sim, podemos voltar nos scripts e rodar o jest e o next de forma concorren
 
 ```bash title="package.json"
   "scripts": {
-    "test": "npm run services:up && npm run wait-for-postgres && concurrently --names next,jest --hide next \"next dev\" \"jest --runInBand\"",
+    "test": "npm run services:up && npm run wait-for-postgres && concurrently --names next,jest --hide next \"next dev\" \"jest --runInBand --verbose\"",
     ...
   },
 ```
@@ -109,7 +109,7 @@ Para o primeiro problema, podemos resolver com algumas parametrizações do `con
 
 ```bash title="package.json"
   "scripts": {
-    "test": "npm run services:up && npm run wait-for-postgres && concurrently --names next,jest --hide next --kill-others --success command-jest \"next dev\" \"jest --runInBand\"",
+    "test": "npm run services:up && npm run wait-for-postgres && concurrently --names next,jest --hide next --kill-others --success command-jest \"next dev\" \"jest --runInBand --verbose\"",
     ...
   },
 ```
@@ -183,7 +183,7 @@ Agora sim, mesmo que a gente adicione um atraso de 1s no next dev, os testes vã
 
 ```bash title="package.json"
   "scripts": {
-    "test": "npm run services:up && npm run wait-for-postgres && concurrently --names next,jest --hide next --kill-others --success command-jest \"sleep 1; next dev\" \"jest --runInBand\"",
+    "test": "npm run services:up && npm run wait-for-postgres && concurrently --names next,jest --hide next --kill-others --success command-jest \"sleep 1; next dev\" \"jest --runInBand --verbose\"",
     ...
   },
 ```

@@ -115,7 +115,7 @@ E agora vamos adicionar um atalho no nosso `package.json` para rodar o ESLint:
     "lint:prettier:check": "prettier --check .",
     "lint:prettier:fix": "prettier --write .",
     "lint:eslint:check": "next lint --dir .",
-    "test": "npm run services:up && npm run wait-for-postgres && concurrently --names next,jest --hide next --kill-others --success command-jest \"next dev\" \"jest --runInBand\"",
+    "test": "npm run services:up && npm run wait-for-postgres && concurrently --names next,jest --hide next --kill-others --success command-jest \"next dev\" \"jest --runInBand --verbose\"",
     "test:watch": "jest --watchAll --runInBand --verbose",
     "migration:create": "node-pg-migrate -m infra/migrations create",
     "migration:up": "node-pg-migrate -m infra/migrations --envPath .env.development up",
@@ -191,3 +191,9 @@ E agora basta adicionar o ESLint na lista de Checks do ruleset do Github, como f
 !!! note
 
     Os erros levantados pelo ESLint foram resolvidas manualmente, seja ignorando o erro, ou corrigindo ele. Não entrarei em detalhes aqui no documento, mas o proprio VSCode sugere como corrigir, e o Copilot também é excelente nesses casos
+
+
+!!! note
+
+    Nos próximos documentos iremos avançar com a parte de Usuários e Autenticação do projeto. O commit final com as alterações até agora estão aqui:
+    [Commit atual](https://github.com/brunononogaki/meubonsai-app-v2/commit/6d16ad2a12eb752c31bb0604d08c651747af2263)

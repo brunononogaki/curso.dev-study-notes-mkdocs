@@ -1,4 +1,6 @@
 site_name: curso.dev notes
+repo_name: brunononogaki/meubonsai-app-v2
+repo_url: https://github.com/brunononogaki/meubonsai-app-v2
 
 nav:
   - Home: index.md
