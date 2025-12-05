@@ -52,13 +52,18 @@ export default async function status(request, response) {
 Primeiramente, vamos criar os testes do GET:
 
 ```javascript title="/tests/integration/v1/migrations.get.test.js"
-test("GET to /api/v1/migrations should return 200", async () => {
-  const response = await fetch("http://localhost:3000/api/v1/migrations");
-  expect(response.status).toBe(200);
-  const responseBody = await response.json();
-  console.log(responseBody);
-  expect(Array.isArray(responseBody)).toBe(true);
-  expect(responseBody.length).toBeGreaterThan(0);
+describe("GET /api/v1/migrations", () => {
+  describe("Anonymous user", () => {
+    test("Getting pending migrations", async () => {
+      const response = await fetch("http://localhost:3000/api/v1/migrations");
+      expect(response.status).toBe(200);
+
+      const responseBody = await response.json();
+      // console.log(responseBody);
+      expect(Array.isArray(responseBody)).toBe(true);
+      expect(responseBody.length).toBeGreaterThan(0);
+    });
+  });
 });
 ```
 
@@ -101,14 +106,20 @@ async function clearDatabase() {
   await database.query("drop schema public cascade; create schema public");
 }
 
-test("GET to /api/v1/migrations should return 200", async () => {
-  const response = await fetch("http://localhost:3000/api/v1/migrations");
-  expect(response.status).toBe(200);
-  const responseBody = await response.json();
-  console.log(responseBody);
-  expect(Array.isArray(responseBody)).toBe(true);
-  expect(responseBody.length).toBeGreaterThan(0);
+describe("GET /api/v1/migrations", () => {
+  describe("Anonymous user", () => {
+    test("Getting pending migrations", async () => {
+      const response = await fetch("http://localhost:3000/api/v1/migrations");
+      expect(response.status).toBe(200);
+
+      const responseBody = await response.json();
+      // console.log(responseBody);
+      expect(Array.isArray(responseBody)).toBe(true);
+      expect(responseBody.length).toBeGreaterThan(0);
+    });
+  });
 });
+
 ```
 
 Sucesso! Testes do GET funcionando!
@@ -188,26 +199,30 @@ async function clearDatabase() {
   await database.query("drop schema public cascade; create schema public");
 }
 
-test("POST to /api/v1/migrations should return 200", async () => {
-  // Primeiro POST
-  const response1 = await fetch("http://localhost:3000/api/v1/migrations", {
-    method: "POST",
+describe("POST to /api/v1/migrations", () => {
+  describe("Running pending migrations", () => {
+    test("First run", async () => {
+      const response1 = await fetch("http://localhost:3000/api/v1/migrations", {
+        method: "POST",
+      });
+      expect(response1.status).toBe(201);
+
+      const responseBody1 = await response1.json();
+      expect(Array.isArray(responseBody1)).toBe(true);
+      expect(responseBody1.length).toBeGreaterThan(0);
+    });
+    test("Second run", async () => {
+      const response2 = await fetch("http://localhost:3000/api/v1/migrations", {
+        method: "POST",
+      });
+      expect(response2.status).toBe(200);
+
+      // Segundo POST
+      const responseBody2 = await response2.json();
+      expect(Array.isArray(responseBody2)).toBe(true);
+      expect(responseBody2.length).toBe(0);
+    });
   });
-  expect(response1.status).toBe(201);
-
-  const responseBody1 = await response1.json();
-  expect(Array.isArray(responseBody1)).toBe(true);
-  expect(responseBody1.length).toBeGreaterThan(0);
-
-  // Segundo POST
-  const response2 = await fetch("http://localhost:3000/api/v1/migrations", {
-    method: "POST",
-  });
-  expect(response2.status).toBe(200);
-
-  const responseBody2 = await response2.json();
-  expect(Array.isArray(responseBody2)).toBe(true);
-  expect(responseBody2.length).toBe(0);
 });
 ```
 

@@ -116,7 +116,7 @@ E agora vamos adicionar um atalho no nosso `package.json` para rodar o ESLint:
     "lint:prettier:fix": "prettier --write .",
     "lint:eslint:check": "next lint --dir .",
     "test": "npm run services:up && npm run wait-for-postgres && concurrently --names next,jest --hide next --kill-others --success command-jest \"next dev\" \"jest --runInBand\"",
-    "test:watch": "jest --watch-all --runInBand",
+    "test:watch": "jest --watchAll --runInBand --verbose",
     "migration:create": "node-pg-migrate -m infra/migrations create",
     "migration:up": "node-pg-migrate -m infra/migrations --envPath .env.development up",
     "wait-for-postgres": "node infra/wait-for-postgres.js"

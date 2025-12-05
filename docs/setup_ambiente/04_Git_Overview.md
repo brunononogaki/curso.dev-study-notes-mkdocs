@@ -47,7 +47,6 @@ Date:   Mon Nov 17 17:56:14 2025 -0300
  pages/api/v1/migrations.js | 35 ++++++++++++++++++++---------------
  1 file changed, 20 insertions(+), 15 deletions(-)
 
-...
 ```
 
 Para uma visão resumida, use `git log --oneline`:
@@ -288,3 +287,36 @@ Tudo começa com a branch principal, mas ninguém mexe nela diretamente. O traba
 Esse modelo foi criado em 2010. O próprio autor, Vincent Driessen, recomenda não tratar como dogma, pois hoje a maioria dos softwares são aplicações web entregues continuamente. Se a equipe já usa CD, ele recomenda estratégias mais simples, como o Feature Branch.
 
 ![Git-Flow](static/gitflow.png)
+
+## Rebase
+
+Um problema comum de acontecer no git é criarmos uma feature-branch nova em cima de uma branch não atualizada. Por exemplo, se não fizermos o `git pull` na branch `main` antes de criar uma nova branch para trabalhar em uma alteração, e caso essa branch `main` tenha alterações que ainda não foram puxadas para o nosso ambiente local, teremos problemas futuramente ao tentar abrir um Pull Request para fazer o Merge dessa nossa nova branch com a branch `main`, porque tem código lá que não estava atualizado na nossa branch e vai dar conflito.
+
+![alt text](static/merge-conflict.png)
+
+E para resolver isso, vamos fazer o `rebase`. Ou seja, refazer a base da nossa branch e substituí-la por uma versão mais atualizada! Então o que iremos fazer é sincronizar a branch main com a versão mais atualizada, e mudar a base da nossa feature-branch, desconectando ela do commit desatualizado, e linkando ao commit mais novo, e depois refazer os commits em cima dela. O passo-a-passo é assim:
+
+1. Fazer checkout na branch `main` e fazer um git pull
+
+2. Voltar para a feature-branch
+
+3. Fazer o rebase para a branch main: `git rebase main`
+
+4. Resolver o conflito manualmente
+   
+5. Adicionar as alterações para staging: `git add .`
+
+6. Fazer o rebase: `git rebase --continue`
+
+7. Fazer o git push com a opção de -f: `git push -f`
+
+
+!!! tip
+    
+    Caso seja necessário editar commits no passado, você pode fazer um rebase até um commit antigo, e ir adicionado os commits um a um de forma interativa. Com o `git log` você pega o histórico de commits, e faz um `git rebase -i {id_commit}`. No arquivo git-rebase-todo que vai abrir, deixe como `pick` os commits que você não quer mexer; `edit` para editar; `reword` para alterar a mensagem de commit. Salve e feche o arquivo.
+
+    Se você tiver algum commit marcado como `edit`, ele vai parar nesse commit para você poder editar o que quiser. Depois de fazer as suas alterações, faça com `git add -A`, e depois um `git commit --ammend` para adicionar esse commit. Se quiser, pode usar a flag `--no-edit` para nem ter que mudar a mensagem de commit. Para continuar com o rebase, faça `git rebase --continue`.
+
+    Se você tiver algum marcado como `reword`, ele vai parar o modo interativo para você trocar a mensagem de commit. E depois vai continuar com o rebase.
+
+    Como ele vai mudar os hashes do commit, para fazer o push, precisa fazer `git push -f`.

@@ -153,7 +153,7 @@ Vamos agora alterar o ``package.json`` e criar scripts que sobem a nossa infra t
     "lint:check": "prettier --check .",
     "lint:fix": "prettier --write .",
     "test": "jest",
-    "test:watch": "jest --watch-all"
+    "test:watch": "jest --watchAll"
   },
 ```
 
@@ -205,17 +205,24 @@ export default async function status(request, response) {
 
 E vamos rodar os testes para confirmar se está tudo certo:
 ```javascript
-test("GET to /api/v1/status should return 200", async () => {
-  const response = await fetch("http://localhost:3000/api/v1/status");
-  expect(response.status).toBe(200);
-  const responseBody = await response.json();
-  expect(responseBody.updated_at).toBeDefined();
-  const parsedUpdatedAt = new Date(responseBody.updated_at).toISOString();
-  expect(responseBody.updated_at).toEqual(parsedUpdatedAt)
-  expect(responseBody.dependencies.database.version).toEqual('16.0')
-  expect(Number.isInteger(responseBody.dependencies.database.max_connections)).toEqual(true)
-  expect(responseBody.dependencies.database.opened_connections).toEqual(1)
+describe("GET to /api/v1/status", () => {
+  describe("Anonymous user", () => {
+    test("Retrieving current system status", async () => {
+      const response = await fetch("http://localhost:3000/api/v1/status");
+      expect(response.status).toBe(200);
+      const responseBody = await response.json();
+      expect(responseBody.updated_at).toBeDefined();
+      const parsedUpdatedAt = new Date(responseBody.updated_at).toISOString();
+      expect(responseBody.updated_at).toEqual(parsedUpdatedAt);
+      expect(responseBody.dependencies.database.version).toEqual("16.0");
+      expect(
+        Number.isInteger(responseBody.dependencies.database.max_connections),
+      ).toEqual(true);
+      expect(responseBody.dependencies.database.opened_connections).toEqual(1);
+    });
+  });
 });
+
 ```
 
 ## Proteção conta SQL Injection

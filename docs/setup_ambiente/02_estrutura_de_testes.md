@@ -15,8 +15,8 @@ Agora vamos editar o ``package.json`` para incluirmos atalhos para os testes. J�
 ```javascript title="package.json"
   "scripts": {
     "dev": "next dev",
-    "test": "jest --runInBand",
-    "test:watch": "jest --watch --runInBand"
+    "test": "jest --runInBand --verbose",
+    "test:watch": "jest --watchAll --runInBand --verbose"
   },
 ```
 
@@ -30,6 +30,7 @@ test("teste 1", () => {
   expect(1).toBe(1);
 });
 ```
+
 
 Esse teste vai simplesmente testar que 1 == 1. Bem útil!
 
@@ -71,6 +72,33 @@ Watch Usage
  › Press q to quit watch mode.
  › Press Enter to trigger a test run.
 
+```
+
+## Usando `describe` nos testes
+Uma funcionalidade do Jest que nos ajuda a descrever melhor os testes é a função `describe`, que pode ser usada assim:
+```javascript
+describe("GET /api/v1/migrations", () => {
+  describe("Anonymous user", () => {
+    test("Getting pending migrations", async () => {
+      const response = await fetch("http://localhost:3000/api/v1/migrations");
+      expect(response.status).toBe(200);
+
+      const responseBody = await response.json();
+      // console.log(responseBody);
+      expect(Array.isArray(responseBody)).toBe(true);
+      expect(responseBody.length).toBeGreaterThan(0);
+    });
+  });
+});
+```
+
+Se rodarmos o Jest com o modo `--verbose`, o resultado será assim:
+
+```bash
+ PASS  tests/integration/api/v1/migrations/get.test.js
+  GET /api/v1/migrations
+    Anonymous user
+      ✓ Getting pending migrations (19 ms)
 ```
 
 Agora mais pra frente vamos começar a criar muitos testes. Optaremos pelos testes de integração, e não tanto testes unitários.

@@ -13,7 +13,7 @@ Atualmente já temos isso configurado no nosso `package.json`
     "lint:check": "prettier --check .",
     "lint:fix": "prettier --write .",
     "test": "jest --runInBand",
-    "test:watch": "jest --watch-all --runInBand",
+    "test:watch": "jest --watchAll --runInBand --verbose",
     "migration:create": "node-pg-migrate -m infra/migrations create",
     "migration:up": "node-pg-migrate -m infra/migrations --envPath .env.development up"
   },

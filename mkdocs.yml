@@ -7,6 +7,7 @@ nav:
       - 02. Definindo a estrutura de testes: setup_ambiente/02_estrutura_de_testes.md
       - 03. Definindo os Linters: setup_ambiente/03_linters.md
       - 04. Git Overview: setup_ambiente/04_Git_Overview.md
+      - 05. Trabalhando com as dependências do projeto: setup_ambiente/05_Dependencias_do_projeto.md
   - Setup do Backend:
       - 01. Criando uma página de status: setup_backend/01_pagina_status.md
       - 02. Integrando um Banco de Dados local: setup_backend/02_banco_local.md
