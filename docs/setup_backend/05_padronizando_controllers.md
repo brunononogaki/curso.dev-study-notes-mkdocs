@@ -288,6 +288,224 @@ async function getHandler(request, response) {
 // }
 ```
 
+## Abstraindo o Controller dos erros
+
+Note que essa parte deo código vai ficar repetida conforme vamos implementando o controle de erros em outras APIs:
+
+```javascript title="./pages/api/v1/status"
+import { InternalServerError, MethodNotAllowedError } from "infra/errors";
+
+function onNoMatchHandler(request, response) {
+  const publicErrorObject = new MethodNotAllowedError();
+  response.status(publicErrorObject.statusCode).json(publicErrorObject);
+}
+
+function onErrorHandler(error, request, response) {
+  const publicErrorObject = new InternalServerError({
+    cause: error,
+    statusCode: error.statusCode,
+  });
+  console.log("\n Erro dentro do catch do next-connect:");
+  console.error(publicErrorObject);
+
+  response.status(publicErrorObject.statusCode).json(publicErrorObject);
+}
+```
+
+Então vamos criar um arquivo `controller.js` dentro da pasta `./infra`, e jogar essa implementação lá pra dentro, e vamos exportar o controller com uma propriedade chamada `errorHandler`, que já vai dar pra gente um handler para usarmos no nosso router.
+
+```javascript title="./infra/controller.js"
+import { InternalServerError, MethodNotAllowedError } from "infra/errors";
+
+function onNoMatchHandler(request, response) {
+  const publicErrorObject = new MethodNotAllowedError();
+  response.status(publicErrorObject.statusCode).json(publicErrorObject);
+}
+
+function onErrorHandler(error, request, response) {
+  const publicErrorObject = new InternalServerError({
+    cause: error,
+    statusCode: error.statusCode,
+  });
+
+  console.error(publicErrorObject);
+
+  response.status(publicErrorObject.statusCode).json(publicErrorObject);
+}
+
+const controller = {
+  errorHandler: {
+    onNoMatch: onNoMatchHandler,
+    onError: onErrorHandler,
+  },
+};
+export default controller;
+```
+
+!!! note
+
+    Esse será o nosso arquivo de `controller` de infra. Por enquanto só temos o tratamento de erros aqui dentro, mas futuramente pode ser que tenhamos que adicionar mais coisas.
+
+Bom, agora é só a gente importar esse controller no nosso arquivo de `status.js`, e simplificar essa implementação, assim:
+
+```javascript title="./pages/api/v1/status.js" hl_lines="3 9"
+import { createRouter } from "next-connect";
+import database from "infra/database.js";
+import controller from "infra/controller.js";
+
+const router = createRouter();
+
+router.get(getHandler);
+
+export default router.handler(controller.errorHandler);
+
+async function get_postgres_version() {
+  const result = await database.query("SHOW server_version");
+  return result.rows[0].server_version;
+}
+
+async function get_postgres_max_connections() {
+  const result = await database.query("SHOW max_connections");
+  return parseInt(result.rows[0].max_connections);
+}
+
+async function get_postgres_used_connections() {
+  const result = await database.query({
+    text: "SELECT COUNT(*)::int FROM pg_stat_activity WHERE datname = $1;",
+    values: [process.env.POSTGRES_DB],
+  });
+  return result.rows[0].count;
+}
+
+async function getHandler(request, response) {
+  const updatedAt = new Date().toISOString();
+  response.status(200).json({
+    updated_at: updatedAt,
+    dependencies: {
+      database: {
+        version: await get_postgres_version(),
+        max_connections: await get_postgres_max_connections(),
+        opened_connections: await get_postgres_used_connections(),
+      },
+    },
+  });
+}
+```
+
+## Criando `ServiceError`
+
+Lá no `database.js` ainda temos um erro genérico sendo gerado aqui:
+
+```javascript title="database.js" hl_lines="7-10"
+async function query(queryObject) {
+  let client;
+  try {
+    client = await getNewClient();
+    const result = await client.query(queryObject);
+    return result;
+  } catch (err) {
+    console.log("\n Erro dentro do catch do database.js:");
+    console.error(err);
+    throw err;
+  } finally {
+    await client?.end();
+  }
+}
+```
+
+Vamos criar um outro erro no nosso `errors.js` chamado `ServiceError`:
+
+```javascript title="./infra/errors.js"
+export class ServiceError extends Error {
+  constructor({ cause, message }) {
+    super(message || "Serviço indisponível no momento.", {
+      cause,
+    });
+    this.name = "ServiceError";
+    this.action = "Verifique se o serviço está disponível.";
+    this.statusCode = 503;
+  }
+
+  toJSON() {
+    return {
+      name: this.name,
+      message: this.message,
+      action: this.action,
+      status_code: this.statusCode,
+    };
+  }
+}
+```
+
+!!! tip
+
+    Veja que nesse erro a gente consegue passar um `message` customizado, informando que o problema é na conexão com o banco. Isso porque futuramente se precisarmos usar esse erro para um outro serviço, podemos apenas alterar a mensagem que vai aparecer na console. Mas caso nenhuma mensagem seja passada, exibiremos apenas um "Serviço indiponível no momento".
+
+Bom, agora vamos importá-lo no `database.js`, passando uma mensagem informando que houve um problema na conexão com o Banco ou com a query:
+
+```javascript title="./infra/database.js" hl_lines="2 11-15"
+import { Client } from "pg";
+import { ServiceError } from "./errors.js";
+
+async function query(queryObject) {
+  let client;
+  try {
+    client = await getNewClient();
+    const result = await client.query(queryObject);
+    return result;
+  } catch (err) {
+    const serviceErrorObject = new ServiceError({
+      message: "Erro na conexão com o Banco ou na Query.",
+      cause: err,
+    });
+    throw serviceErrorObject;
+  } finally {
+    await client?.end();
+  }
+}
+```
+
+Note que nesse caso, o erro que retornamos é um `503: Service Unavailable`. Mas o nosso erro `InternalServerError` está retornando na API um erro `500: Internal Server Error`. Então vamos alterar essa classe para permitir receber um `statusCode` diferente, e usá-lo caso receba essa informação. Caso contrário, continua usando o erro 500 mesmo:
+
+```javascript title="./infra/errors.js" hl_lines="2 8"
+export class InternalServerError extends Error {
+  constructor({ cause, statusCode }) {
+    super("Um erro interno não esperado aconteceu.", {
+      cause: cause,
+    });
+    this.name = "InternalServerError";
+    this.action = "Entre em contato com o suporte.";
+    this.statusCode = statusCode || 500;
+  }
+
+  toJSON() {
+    return {
+      name: this.name,
+      message: this.message,
+      action: this.action,
+      status_code: this.statusCode,
+    };
+  }
+}
+```
+
+Agora vamos no `controller.js`, que é quem utiliza essa classe, e vamos configurár o `onErrorHandler` para passar o statusCode:
+
+```javascript title="./infra/controller.js" hl_lines="4"
+function onErrorHandler(error, request, response) {
+  const publicErrorObject = new InternalServerError({
+    cause: error,
+    statusCode: error.statusCode,
+  });
+
+  console.error(publicErrorObject);
+
+  response.status(publicErrorObject.statusCode).json(publicErrorObject);
+}
+```
+
+Então agora lá no nosso `status.js`, quando a função `getHandler` der algum erro de conexão com o banco de dados, o `database.js` vai gerar lançar um erro que definimos como 503 (que vem o `ServiceError` que criamos). Esse erro será passado para o tratamento do `onErrorHandler`, que recebe o erro como parâmetro, e com isso temos o `error.statusCode`, que será o 503.
+
 !!! success
 
-    Boa! Agora ainda temos mais coisas para refatorar nesse Controller, mas já abstraímos o tratamento das rotas e dos erros!
+    Com isso, terminamos a primeira etapa da nossa refatoração!

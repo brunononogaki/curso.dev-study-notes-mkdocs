@@ -14,7 +14,7 @@ export default async function migration(request, response) {
 }
 ```
 
-Através do **request.method**, podemos ver se o método que chamou a função é um GET, POST, PUT, etc. E através da documentação do node-pg-migrate, vemos que esse módulo tem um **migrationRunner**, que podemos chamar para rodar as migrações. Então vamos preencher o código assim:
+Através do **request.method**, podemos ver se o método que chamou a função é um GET, POST, PUT, etc. E através da documentação do node-pg-migrate, vemos que esse módulo tem um **migrationRunner**, que podemos chamar para rodar as migrações. Então código podería ser assim:
 
 ```javascript title="pages/api/v1/migration.js"
 import migrationRunner from "node-pg-migrate";
@@ -119,17 +119,15 @@ describe("GET /api/v1/migrations", () => {
     });
   });
 });
-
 ```
 
 Sucesso! Testes do GET funcionando!
 
-## Refatorando o migrations.js
+## Refatorando o migrations.js (primeira parte)
 
 Vamos dar uma melhorada no código do migrations.js, que tem muita repetição de definição do banco. E podemos reaproveitar a função getNewClient() que exportamos do database.js, que retorna uma instância conectada do banco.
 
 ```javascript title="/pages/api/v1/migration.js"
-
 import migrationRunner from "node-pg-migrate";
 import { join } from "node:path";
 import database from "infra/database.js";
@@ -185,7 +183,6 @@ export default async function migrations(request, response) {
     await dbClient.end();
   }
 }
-
 ```
 
 E agora é só criar os testes do post. Nesse teste, rodaremos o POST duas vezes. Na primeira ele tem que detectar uma migração e rodar ela, e na segunda, como a migração já vai ter acontecido, ele deve retornar 0 (nenhuma migração pendente):
@@ -226,4 +223,68 @@ describe("POST to /api/v1/migrations", () => {
 });
 ```
 
-Agora já podemos subir esse código para o git, e rodar as migrações nos nossos bancos de Produção e Homologação, chamando as nossas APIs públicas! 🙌🙌🙌
+## Segunda refatoração do `migrations.js` com a Padronização dos Controllers
+
+Como na [Padronização dos Controllers](../setup_backend/05_padronizando_controllers.md) optamos por usar um módulo chamado next-connect, e já implementamos tratamentos de erros, vamos implementar da mesma forma que fizemos com a API `status.js`.
+
+```javascript title="pages/api/v1/migration.js"
+import { createRouter } from "next-connect";
+import migrationRunner from "node-pg-migrate";
+import { resolve } from "node:path";
+import database from "infra/database.js";
+import controller from "infra/controller.js";
+
+const router = createRouter();
+
+router.get(getHandler);
+router.post(postHandler);
+
+export default router.handler(controller.errorHandler);
+
+const defaultMigrationOptions = {
+  dryRun: true,
+  dir: resolve("infra", "migrations"),
+  verbose: true,
+  direction: "up",
+  migrationsTable: "pgmigrations",
+};
+
+async function getHandler(request, response) {
+  let dbClient;
+  try {
+    dbClient = await database.getNewClient();
+    const pendingMigrations = await migrationRunner({
+      ...defaultMigrationOptions,
+      dbClient,
+    });
+
+    return response.status(200).json(pendingMigrations);
+  } finally {
+    await dbClient?.end();
+  }
+}
+
+async function postHandler(request, response) {
+  let dbClient;
+  try {
+    dbClient = await database.getNewClient();
+    const migratedMigrations = await migrationRunner({
+      ...defaultMigrationOptions,
+      dryRun: false,
+      dbClient,
+    });
+
+    if (migratedMigrations.length > 0) {
+      return response.status(201).json(migratedMigrations);
+    } else {
+      return response.status(200).json(migratedMigrations);
+    }
+  } finally {
+    await dbClient?.end();
+  }
+}
+```
+
+!!! success
+
+    Agora já podemos subir esse código para o git, e rodar as migrações nos nossos bancos de Produção e Homologação, chamando as nossas APIs públicas! 🙌🙌🙌
