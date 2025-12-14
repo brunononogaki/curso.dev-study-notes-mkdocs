@@ -15,6 +15,7 @@ nav:
       - 02. Integrando um Banco de Dados local: setup_backend/02_banco_local.md
       - 03. Integrando um Banco de Dados de Produção e Staging: setup_backend/03_banco_prod_staging.md
       - 04. Padronizando Erros: setup_backend/04_padronizando_erros.md
+      - 05. Padronizando os Controllers: setup_backend/05_padronizando_controllers.md
   - Database Migrations:
       - 01. Configurando o node-pg-migrations: database_migrations/01_Configurando_node-pg-migrations.md
       - 02. Criando os endpoints da API para migrations: database_migrations/02_Criando_API_Migration.md
