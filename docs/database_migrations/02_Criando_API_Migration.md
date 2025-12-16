@@ -285,6 +285,91 @@ async function postHandler(request, response) {
 }
 ```
 
+## Terceira refatoração do `migrations.js` com a criação de um Model
+
+O código atual funciona, mas no nosso arquivo de controller (`migration.js`) temos responsabilidades que deveriam estar dentro de um **model**, que é quem deveria ter as regras de negócio para listar e rodar as migrações. O model não deve se preocupar com as requisições web, status HTTP, formatação de resposta, etc. Ele deve simplesmente listar as migrações pendentes e executá-las. O controller, por sua vez, deve estar responsável apenas por receber as requisições, chamar o model, e devolver o resultado ao client.
+
+Para isso, vamos separar tudo que é relativo à migração em si, e colocar num arquivo novo chamado `migrator.js`, dentro de uma nova pasta chamada `./models`:
+
+```python title="./models/migrator.js"
+import database from "infra/database.js";
+import migrationRunner from "node-pg-migrate";
+import { resolve } from "node:path";
+
+const defaultMigrationOptions = {
+  dryRun: true,
+  dir: resolve("infra", "migrations"),
+  verbose: true,
+  direction: "up",
+  migrationsTable: "pgmigrations",
+};
+
+async function listPendingMigration() {
+  let dbClient;
+  try {
+    dbClient = await database.getNewClient();
+    const pendingMigrations = await migrationRunner({
+      ...defaultMigrationOptions,
+      dbClient,
+    });
+    return pendingMigrations;
+  } finally {
+    await dbClient?.end();
+  }
+}
+
+async function runPendingMigrations() {
+  let dbClient;
+  try {
+    dbClient = await database.getNewClient();
+    const migratedMigrations = await migrationRunner({
+      ...defaultMigrationOptions,
+      dryRun: false,
+      dbClient,
+    });
+    return migratedMigrations;
+  } finally {
+    await dbClient?.end();
+  }
+}
+
+const migrator = {
+  listPendingMigration,
+  runPendingMigrations,
+};
+export default migrator;
+```
+
+E agora no nosso `migrations.js`, vamos apenas chamar o model que criamos, e resumir o código da seguinte forma:
+
+```python title="./pages/api/v1/migrations.js"
+import { createRouter } from "next-connect";
+import controller from "infra/controller.js";
+import migrator from "models/migrator.js";
+
+const router = createRouter();
+
+router.get(getHandler);
+router.post(postHandler);
+
+export default router.handler(controller.errorHandler);
+
+async function getHandler(request, response) {
+  const pendingMigrations = await migrator.listPendingMigration();
+  return response.status(200).json(pendingMigrations);
+}
+
+async function postHandler(request, response) {
+  const migratedMigrations = await migrator.runPendingMigrations();
+
+  if (migratedMigrations.length > 0) {
+    return response.status(201).json(migratedMigrations);
+  } else {
+    return response.status(200).json(migratedMigrations);
+  }
+}
+```
+
 !!! success
 
     Agora já podemos subir esse código para o git, e rodar as migrações nos nossos bancos de Produção e Homologação, chamando as nossas APIs públicas! 🙌🙌🙌
