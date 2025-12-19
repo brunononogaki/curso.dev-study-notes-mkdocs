@@ -5,27 +5,29 @@ repo_url: https://github.com/brunononogaki/meubonsai-app-v2
 nav:
   - Home: index.md
   - Setup do Ambiente:
-      - 01. Iniciando o setup do ambiente: setup_ambiente/01_setup_do_ambiente.md
-      - 02. Definindo a estrutura de testes: setup_ambiente/02_estrutura_de_testes.md
-      - 03. Definindo os Linters: setup_ambiente/03_linters.md
-      - 04. Git Overview: setup_ambiente/04_Git_Overview.md
-      - 05. Trabalhando com as dependências do projeto: setup_ambiente/05_Dependencias_do_projeto.md
+      - 01. Iniciando o setup do ambiente: 01_setup_ambiente/01_setup_do_ambiente.md
+      - 02. Definindo a estrutura de testes: 01_setup_ambiente/02_estrutura_de_testes.md
+      - 03. Definindo os Linters: 01_setup_ambiente/03_linters.md
+      - 04. Git Overview: 01_setup_ambiente/04_Git_Overview.md
+      - 05. Trabalhando com as dependências do projeto: 01_setup_ambiente/05_Dependencias_do_projeto.md
   - Setup do Backend:
-      - 01. Criando uma página de status: setup_backend/01_pagina_status.md
-      - 02. Integrando um Banco de Dados local: setup_backend/02_banco_local.md
-      - 03. Integrando um Banco de Dados de Produção e Staging: setup_backend/03_banco_prod_staging.md
-      - 04. Padronizando Erros: setup_backend/04_padronizando_erros.md
-      - 05. Padronizando os Controllers: setup_backend/05_padronizando_controllers.md
+      - 01. Criando uma página de status: 02_setup_backend/01_pagina_status.md
+      - 02. Integrando um Banco de Dados local: 02_setup_backend/02_banco_local.md
+      - 03. Integrando um Banco de Dados de Produção e Staging: 02_setup_backend/03_banco_prod_staging.md
+      - 04. Padronizando Erros: 02_setup_backend/04_padronizando_erros.md
+      - 05. Padronizando os Controllers: 02_setup_backend/05_padronizando_controllers.md
   - Database Migrations:
-      - 01. Configurando o node-pg-migrations: database_migrations/01_Configurando_node-pg-migrations.md
-      - 02. Criando os endpoints da API para migrations: database_migrations/02_Criando_API_Migration.md
+      - 01. Configurando o node-pg-migrations: 03_database_migrations/01_Configurando_node-pg-migrations.md
+      - 02. Criando os endpoints da API para migrations: 03_database_migrations/02_Criando_API_Migration.md
   - Setup do CI/CD:
-      - 01. Estabilizando o ambiente local: setup_cicd/01_Estabilizando_Local.md
-      - 02. Criando os testes no CI com GH Actions: setup_cicd/02_Testes_no_CI(GH_Actions).md  
-      - 03. Linting de Commits: setup_cicd/03_Linting_de_Commits.md  
+      - 01. Estabilizando o ambiente local: 04_setup_cicd/01_Estabilizando_Local.md
+      - 02. Criando os testes no CI com GH Actions: 04_setup_cicd/02_Testes_no_CI(GH_Actions).md  
+      - 03. Linting de Commits: 04_setup_cicd/03_Linting_de_Commits.md  
   - Setup do Front-End React:
-      - 01. Criando a página /status: setup_frontend/01_Criando_pagina_status.md
-
+      - 01. Criando a página /status: 05_setup_frontend/01_Criando_pagina_status.md
+  - Usuários e Autenticaçãpadd:
+      - 01. Criando a Migration de Users: 06_Usuarios/01_Criando_migration_Users.md
+      - 02. Criando a Rota, Controller e Model de Users: 06_Usuarios/02_Criando_Rota_Users.md
 theme:
   name: material
   palette:
