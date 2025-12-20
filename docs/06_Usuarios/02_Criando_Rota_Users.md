@@ -118,20 +118,25 @@ Agora sim vamos criar o model `user`, que vai ter a lógica para inserir um usu�
 import database from "infra/database.js";
 
 async function create(userInputValues) {
-  const results = await database.query({
-    text: `
-      INSERT INTO 
-        users (username, email, password)
-      VALUES ($1, $2, $3)
-      RETURNING * 
-    ;`, // RETURNING * para a query retornar o usuário criado
-    values: [
-      userInputValues.username,
-      userInputValues.email,
-      userInputValues.password,
-    ],
-  });
-  return results.rows[0];
+  const newUser = await runInsertQuery(userInputValues);
+  return newUser;
+
+  async function runInsertQuery(userInputValues) {
+    const users = await database.query({
+      text: `
+        INSERT INTO 
+          users (username, email, password)
+        VALUES ($1, $2, $3)
+        RETURNING *
+      `, // RETURNING * para a query retornar o usuário criado
+      values: [
+        userInputValues.username,
+        userInputValues.email,
+        userInputValues.password,
+      ],
+    });
+    return users.rows[0];
+  }
 }
 
 const user = {
@@ -145,4 +150,4 @@ export default user;
 
     Show! Nossa API já está prontinha para realizar cadastro de usuários na base. Mas ainda faltam muitas outras regras de negócio para deixarmos essa API mais robusta, e é isso que faremos a seguir!
 
-## Definindo as regras de negócio
+
