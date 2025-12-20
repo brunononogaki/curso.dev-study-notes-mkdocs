@@ -1,4 +1,4 @@
-# Criando a rota `/users/`
+# Configurando a rota para criação de usuários
 
 Com as migrations criadas, e com a base de usuários já no Postgres, podemos começar a criar a rota do `/users`, o que nos levará a criar o `Controller` e o `Model`. Já temos um teste automatizado que criamos para o POST no `/users`, e obviamente ele está falhando porque ainda não criamos nada.
 

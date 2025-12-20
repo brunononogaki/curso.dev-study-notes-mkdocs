@@ -134,8 +134,8 @@ async function create(userInputValues) {
         RETURNING *
       `,
       values: [
-        userInputValues.username.toLowerCase(),
-        userInputValues.email.toLowerCase(),
+        userInputValues.username,
+        userInputValues.email,
         userInputValues.password,
       ],
     });
@@ -257,3 +257,4 @@ Agora vamos voltar para o nosso teste, e colocar umas validações adicionais, p
 !!! success
 
     Nossa primeira regra foi implementada, e o teste já está passando com sucesso! Agora, da mesma forma, podemos fazer a validação de usuários duplicados, que vai seguir exatamente a mesma lógica.
+
