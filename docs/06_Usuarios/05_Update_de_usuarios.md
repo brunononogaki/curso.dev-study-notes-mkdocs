@@ -262,3 +262,297 @@ async function update(username, userInputValues) {
 ```
 
 ## Realizando a alteração dos dados do usuário
+
+Vamos começar fazendo os testes para updates com sucesso de `username` e `email`:
+
+```javascript title="./api/v1/users/[username]/patch.test.js"
+describe("PATCH to /api/v1/users/[username]", () => {
+  describe("Anonymous user", () => {
+    
+    // Os demais testes foram ocultados
+
+    test("With unique username", async () => {
+      const userToBeCreated1 = {
+        username: "UniqueEmail1",
+        email: "uniqueemail1@email.com",
+        password: "senha123",
+      };
+
+      const response1 = await fetch("http://localhost:3000/api/v1/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userToBeCreated1),
+      });
+      expect(response1.status).toBe(201);
+
+      const userToBeUpdated = {
+        email: "uniqueemail2@email.com",
+      };
+
+      const responseUpdate = await fetch(
+        "http://localhost:3000/api/v1/users/UniqueEmail1",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(userToBeUpdated),
+        },
+      );
+
+      expect(responseUpdate.status).toBe(200);
+
+      const responseUpdateBody = await responseUpdate.json();
+
+      expect(responseUpdateBody).toEqual({
+        id: responseUpdateBody.id,
+        username: "UniqueEmail1",
+        email: "uniqueemail2@email.com",
+        password: responseUpdateBody.password,
+        created_at: responseUpdateBody.created_at,
+        updated_at: responseUpdateBody.updated_at,
+      });
+
+      expect(uuidVersion(responseUpdateBody.id)).toBe(4);
+      expect(Date.parse(responseUpdateBody.created_at)).not.toBeNaN();
+      expect(Date.parse(responseUpdateBody.created_at)).not.toBeNaN();
+      expect(
+        responseUpdateBody.updated_at > responseUpdateBody.created_at,
+      ).toBe(true);
+    });
+    test("With unique email", async () => {
+      const userToBeCreated1 = {
+        username: "UniqueUser1",
+        email: "uniqueuser1@email.com",
+        password: "senha123",
+      };
+
+      const response1 = await fetch("http://localhost:3000/api/v1/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userToBeCreated1),
+      });
+      expect(response1.status).toBe(201);
+
+      const userToBeUpdated = {
+        email: "uniqueuser2@email.com",
+      };
+
+      const responseUpdate = await fetch(
+        "http://localhost:3000/api/v1/users/UniqueUser1",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(userToBeUpdated),
+        },
+      );
+
+      expect(responseUpdate.status).toBe(200);
+
+      const responseUpdateBody = await responseUpdate.json();
+
+      expect(responseUpdateBody).toEqual({
+        id: responseUpdateBody.id,
+        username: "UniqueUser1",
+        email: "uniqueuser2@email.com",
+        password: responseUpdateBody.password,
+        created_at: responseUpdateBody.created_at,
+        updated_at: responseUpdateBody.updated_at,
+      });
+
+      expect(uuidVersion(responseUpdateBody.id)).toBe(4);
+      expect(Date.parse(responseUpdateBody.created_at)).not.toBeNaN();
+      expect(Date.parse(responseUpdateBody.created_at)).not.toBeNaN();
+      expect(
+        responseUpdateBody.updated_at > responseUpdateBody.created_at,
+      ).toBe(true);
+    });    
+```
+
+E agora vamos criar a query de `PATCH`:
+
+```javascript title="./models/user.js"
+async function update(username, userInputValues) {
+  const currentUser = await findOneByUsername(username);
+
+  if ("email" in userInputValues) {
+    await validateUniqueEmail(userInputValues.email);
+  }
+  if ("username" in userInputValues) {
+    await validateUniqueUsername(userInputValues.username);
+  }
+
+  const userWithNewValues = { ...currentUser, ...userInputValues };
+  const updatedUser = await runUpdateQuery(userWithNewValues);
+  return updatedUser;
+
+  async function runUpdateQuery(userWithNewValues) {
+    const users = await database.query({
+      text: `
+        UPDATE 
+          users
+        SET
+          username = $2,
+          email = $3,
+          password = $4,
+          updated_at = timezone('utc',now())
+        WHERE 
+          id = $1
+        RETURNING *
+      `,
+      values: [
+        userWithNewValues.id,
+        userWithNewValues.username,
+        userWithNewValues.email,
+        userWithNewValues.password,
+      ],
+    });
+    return users.rows[0];
+  }
+}
+```
+
+## Realizando a alteração da senha
+
+Para fazer a alteração da senha, é a mesma coisa, com a diferença que precisaremos criar o hash dela, e nos testes comparar os hashes.
+Vamos começar com os testes:
+
+```javascript title="./api/v1/users/[username]/patch.test.js" hl_lines="3-4"
+import orchestrator from "tests/orchestrator";
+import { version as uuidVersion } from "uuid";
+import user from "models/user.js";
+import password from "models/password.js";
+
+
+describe("PATCH to /api/v1/users/[username]", () => {
+  describe("Anonymous user", () => {
+
+    // Os demais testes foram ocultados
+
+    test("With new password", async () => {
+      const userToBeCreated1 = {
+        username: "NewUserPassword1",
+        email: "NewUserPassword1@email.com",
+        password: "senha123",
+      };
+
+      const response1 = await fetch("http://localhost:3000/api/v1/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userToBeCreated1),
+      });
+      expect(response1.status).toBe(201);
+
+      const userToBeUpdated = {
+        password: "NewPassword",
+      };
+
+      const responseUpdate = await fetch(
+        "http://localhost:3000/api/v1/users/NewUserPassword1",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(userToBeUpdated),
+        },
+      );
+
+      expect(responseUpdate.status).toBe(200);
+
+      const responseUpdateBody = await responseUpdate.json();
+
+      expect(responseUpdateBody).toEqual({
+        id: responseUpdateBody.id,
+        username: "NewUserPassword1",
+        email: "NewUserPassword1@email.com",
+        password: responseUpdateBody.password,
+        created_at: responseUpdateBody.created_at,
+        updated_at: responseUpdateBody.updated_at,
+      });
+
+      expect(uuidVersion(responseUpdateBody.id)).toBe(4);
+      expect(Date.parse(responseUpdateBody.created_at)).not.toBeNaN();
+      expect(Date.parse(responseUpdateBody.created_at)).not.toBeNaN();
+      expect(
+        responseUpdateBody.updated_at > responseUpdateBody.created_at,
+      ).toBe(true);
+
+      // Coleta dos dados do usuário na base e comparação dos hashes das senhas
+      const userInDatabase = await user.findOneByUsername("NewUserPassword1");
+      const correctPasswordMatch = await password.compare(
+        "NewPassword",
+        userInDatabase.password,
+      );
+
+      const incorrectPasswordMatch = await password.compare(
+        "senha123",
+        userInDatabase.password,
+      );
+      expect(correctPasswordMatch).toBe(true);
+      expect(incorrectPasswordMatch).toBe(false);
+    });    
+```
+
+E agora vamos configurar o model para receber a senha nova, criar o hash dela, e atualizar no banco. A gente já tinha a função `hashPasswordInObject` dentro de `create`, então vamos mover ela para fora, para que tenha um escopo global. E aí basta utilizá-la no `update`:
+
+```javascript title="./models/user.js" hl_lines="10-12"
+async function update(username, userInputValues) {
+  const currentUser = await findOneByUsername(username);
+
+  if ("email" in userInputValues) {
+    await validateUniqueEmail(userInputValues.email);
+  }
+  if ("username" in userInputValues) {
+    await validateUniqueUsername(userInputValues.username);
+  }
+  if ("password" in userInputValues) {
+    await hashPasswordInObject(userInputValues)
+  }
+
+  const userWithNewValues = { ...currentUser, ...userInputValues };
+  const updatedUser = await runUpdateQuery(userWithNewValues);
+  return updatedUser;
+
+  async function runUpdateQuery(userWithNewValues) {
+    const users = await database.query({
+      text: `
+        UPDATE 
+          users
+        SET
+          username = $2,
+          email = $3,
+          password = $4,
+          updated_at = timezone('utc',now())
+        WHERE 
+          id = $1
+        RETURNING *
+      `,
+      values: [
+        userWithNewValues.id,
+        userWithNewValues.username,
+        userWithNewValues.email,
+        userWithNewValues.password,
+      ],
+    });
+    return users.rows[0];
+  }
+}
+
+async function hashPasswordInObject(userInputValues) {
+  const hashedPassword = await password.hash(userInputValues.password);
+  userInputValues.password = hashedPassword;
+}
+```
+
+!!! success
+
+    Agora sim a nossa rota de `patch` está atualizando os dados do usuário com sucesso!
