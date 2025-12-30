@@ -44,10 +44,10 @@ describe("POST to /api/v1/users", () => {
         id: responseBody.id,
         username: "bruno.nonogaki",
         email: "brunono@gmail.com",
-        password: "senha123",
+        password: responseBody.password,
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
-      });
+      });**
 
       expect(uuidVersion(responseBody.id)).toBe(4);
       expect(Date.parse(responseBody.created_at)).not.toBeNaN();
