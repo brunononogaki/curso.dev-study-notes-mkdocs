@@ -358,3 +358,6 @@ const password = {
 export default password;
 ```
 
+!!! success
+
+    Agora sim as senhas estão sendo armazenadas de forma segura no nosso Banco de Dados!
