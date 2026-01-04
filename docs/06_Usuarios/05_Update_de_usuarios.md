@@ -556,3 +556,101 @@ async function hashPasswordInObject(userInputValues) {
 !!! success
 
     Agora sim a nossa rota de `patch` está atualizando os dados do usuário com sucesso!
+
+## Refatorando os testes
+
+Por enquanto está tudo certo, mas tem como melhorarmos os testes de usuários. Nos testes dentro de `[username]` (o GET e o PATCH), em cada teste a gente tem que criar um novo usuário, e isso é uma tarefa repetitiva, que podemos delegar para o `orchestrator`. Nesses testes, a gente não está interessado na criação dele, essa criação é na verdade um pré-requisito para o teste.
+
+Esse é o bloco de código que queremos eliminar:
+```javascript
+const userToBeCreated1 = {
+  username: "UsuarioTeste",
+  email: "usuario.teste@email.com",
+  password: "senha123",
+};
+
+const response1 = await fetch("http://localhost:3000/api/v1/users", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(userToBeCreated1),
+});
+expect(response1.status).toBe(201);
+```
+
+Vamos então criar um novo método no `orchestrator`:
+```javascript title="./tests/orchestrator.js"
+import user from "models/user.js";
+
+async function createUser(userObject) {
+  await user.create(userObject);
+}
+```
+
+E agora esses blocos podem ser substituídos simplesmente por isso (alterando apenas os dados do usuário):
+```javascript
+await orchestrator.createUser(
+  {
+    username: "UsuarioTeste",
+    email: "usuario.teste@email.com",
+    password: "senha123",
+  }
+)
+```
+
+Mas note que temos alguns testes em que não estamos interessados exatamente no email ou username. Por exemplo, no teste de username duplicado, podemos mandar qualquer e-mails, pois não interessa muito nesse teste. Para isso, podemos alterar o método `createUser` e passar a usar um módulo chamado `faker`, que cria randomicamente dados respeitando algumas regras, como ter um formato de e-mail válido. Vamos instalar o Faker como uma dependência de desenvolvimento:
+
+```bash
+npm i -E -D @faker-js/faker@9.7.0
+```
+
+E agora vamos alterar o Orchestrator:
+
+```javascript title="./tests/orchestrator.js"
+import { faker } from "@faker-js/faker"
+
+async function createUser(userObject) {
+  return await user.create({
+    username:
+      userObject?.username || faker.internet.username().replace(/[_.-]/g, ""),
+    email: userObject?.email || faker.internet.email(),
+    password: userObject?.password || "validpassword",
+  });
+}
+```
+
+E nos testes, podemos agora passar apenas os valores que nos interessam na criação do usuário, por exemplo:
+```javascript
+test("With duplicated email", async () => {
+  // não precisamos mais passar o username e a senha do usuário 1
+  await orchestrator.createUser({
+    // username: "UsernameDuplicado3",
+    email: "usernameduplicado3@email.com",
+    // password: "senha123",
+  });
+
+  // não precisamos mais passar o username e a senha do usuário 2, mas como precisamos saber qual username foi criado pelo faker, anotamos o resultado na variável createdUser2
+  const createdUser2 = await orchestrator.createUser({
+    // username: "UsernameDuplicado4",
+    email: "usernameduplicado4@email.com",
+    // password: "senha123",
+  });
+
+  const userToBeUpdated = {
+    email: "usernameduplicado3@email.com",
+  };
+
+  const responseUpdate = await fetch(
+    `http://localhost:3000/api/v1/users/${createdUser2.username}`, // <= Utilizamos o usuário criado dinamicamente pelo faker
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userToBeUpdated),
+    },
+  );
+```
+
+E assim, vamos refatorar os testes de `users/[username]`.
