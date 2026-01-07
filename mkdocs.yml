@@ -25,12 +25,14 @@ nav:
       - 03. Linting de Commits: 04_setup_cicd/03_Linting_de_Commits.md  
   - Setup do Front-End React:
       - 01. Criando a página /status: 05_setup_frontend/01_Criando_pagina_status.md
-  - Usuários e Autenticação:
+  - Usuários:
       - 01. Criando a Migration de Users: 06_Usuarios/01_Criando_migration_Users.md
       - 02. Configurando a rota para a criação de Usuários: 06_Usuarios/02_Criacao_de_usuarios.md
       - 03. Definindo as regras de negócio de Users: 06_Usuarios/03_Definindo_Regras_de_Negocio.md
       - 04. Configurando a rota para detalhes de Usuários: 06_Usuarios/04_Detalhes_de_usuarios.md
       - 05. Configurando a rota para updates de Usuários: 06_Usuarios/05_Update_de_usuarios.md
+  - Autenticação e Autorização:
+      - 01. Implementando a Autenticação: 07_Autenticacao_Autorizacao/01_Implementando_autenticacao.md
 theme:
   name: material
   palette:
