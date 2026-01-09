@@ -705,3 +705,12 @@ describe("POST to /api/v1/sessions", () => {
     ```
 
     Aí foi só validar os dados.
+
+
+## Como o navegador usa o Cookie
+
+Agora, como o servidor está mandando essa instrução `Set-Cookie` na criação da sessão, o navegador armazena esse cookie no seu Cookie Jar, e ele automaticamente envia ele no header `Cookie` nas requisições futuras. Isso é do próprio client (navegador ou o Postman, nesse caso), não é preciso fazer nada:
+
+![alt text](static/cookie-jar-4.png)
+
+Então agora, do ponto de vista do nosso servidor, o client já está apresentando o token em todas as requests que ele fizer contra a nossa API. O que precisamos fazer agora é programar essa trava nos endpoints que precisam de autenticação. Vamos começar a implementar isso em seguida!

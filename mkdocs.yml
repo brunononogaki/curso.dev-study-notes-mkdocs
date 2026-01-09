@@ -33,6 +33,7 @@ nav:
       - 05. Configurando a rota para updates de Usuários: 06_Usuarios/05_Update_de_usuarios.md
   - Autenticação e Autorização:
       - 01. Implementando a Autenticação: 07_Autenticacao_Autorizacao/01_Implementando_autenticacao.md
+      - 02. Criando o endpoint /user: 07_Autenticacao_Autorizacao/02_Endpoint_user.md
 theme:
   name: material
   palette:
