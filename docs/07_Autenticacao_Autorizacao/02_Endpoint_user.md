@@ -654,3 +654,4 @@ describe("GET /api/v1/user", () => {
 !!! success
 
     Sucesso! Agora sim, a nossa sessão está sendo novada toda vez que o client encostar na API `/user`!
+

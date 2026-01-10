@@ -34,6 +34,7 @@ nav:
   - Autenticação e Autorização:
       - 01. Implementando a Autenticação: 07_Autenticacao_Autorizacao/01_Implementando_autenticacao.md
       - 02. Criando o endpoint /user: 07_Autenticacao_Autorizacao/02_Endpoint_user.md
+      - 03. Implementando o Logout: 07_Autenticacao_Autorizacao/03_Implementando_Logout.md
 theme:
   name: material
   palette:
