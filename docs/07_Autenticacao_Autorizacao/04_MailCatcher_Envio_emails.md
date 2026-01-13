@@ -37,9 +37,8 @@ services:
 ```
 
 !!! success
-    
-    E pronto, agora ao dar o comando `npm run dev`, esse container já será inicializado! É possível acessar a "mailbox" no endereço `http://localhost:1080`
 
+    E pronto, agora ao dar o comando `npm run dev`, esse container já será inicializado! É possível acessar a "mailbox" no endereço `http://localhost:1080`
 
 !!! tip
 
@@ -86,17 +85,15 @@ npm install -E nodemailer@7.0.5
 Agora vamos construir o módulo `email.js` na pasta `infra`, similar ao que fizemos por exemplo com o módulo do `database.js`:
 
 ```javascript title="./infra/email.js"
-import nodemailer from "nodemailer"
+import nodemailer from "nodemailer";
 
-async function send() {
-
-}
+async function send() {}
 
 const email = {
-  send
-}
+  send,
+};
 
-export default email
+export default email;
 ```
 
 ## Testando envio de e-mails
@@ -150,6 +147,7 @@ EMAIL_SMTP_PASSWORD=
 ```
 
 E por fim, vamos passar o objeto de configuração do email para o método `send()`:
+
 ```javascript title="./tests/integration/email.test.js"
 import email from "infra/email.js";
 
@@ -168,3 +166,173 @@ describe("Test infra/email.js", () => {
 !!! success
 
     Sucesso, agora já estamos conseguindo fazer o envio do e-mail pelo `mailcatcher`!
+
+## Finalizando o teste de integração
+
+Agora vamos acrescentar algumas coisas no nosso teste, como limpar a caixa de entrada a cada início de teste (como fazemos com a Database), e uma função para pegar o ultimo e-mail da caixa, e assim podermos fazer os assertions. O `mailcatcher` disponibiliza uma interface via API para executarmos essas operações, então vamos adicionar mais duas variáveis no nosso `.env`:
+
+```bash title="./.env.development"
+EMAIL_HTTP_HOST=0.0.0.0
+EMAIL_HTTP_PORT=1080
+```
+
+Agora vamos criar a função `deleteAllEmails()` no `orchestrator.js`:
+
+```javascript title="./tests/orchestrator.js"
+async function deleteAllEmails() {
+  await fetch(
+    `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}/messages`,
+    {
+      method: "DELETE",
+    }
+  );
+}
+```
+
+E agora chamar essa função no `beforeAll` dos testes de e-mail:
+
+```javascript title="./tests/integration/email.test.js" hl_lines="2 4-6"
+import email from "infra/email.js";
+import orchestrator from "tests/orchestrator";
+
+beforeAll(async () => {
+  await orchestrator.deleteAllEmails();
+});
+
+describe("Test infra/email.js", () => {
+  test("send()", async () => {
+    await email.send({
+      from: "MeuBonsai <contato@meubonsai.app>",
+      to: "contato@brunononogaki.com",
+      subject: "Teste de email",
+      text: "Text de corpo",
+      // html:
+    });
+  });
+});
+```
+
+!!! success
+
+    Agora toda vez que iniciarmos os testes, a caixa de entrada será limpada!
+
+Vamos agora implementar a função `getLastEmail()`:
+
+```javascript title="./tests/orchestrator.js"
+async function getLastEmail() {
+  // Collect all messages in the mailbox
+  const emailListResponse = await fetch(
+    `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}/messages`
+  );
+  const emailListBody = await emailListResponse.json();
+  // Get the last item
+  const lastEmailItem = emailListBody.pop();
+
+  // Get the text of this email
+  const emailTextResponse = await fetch(
+    `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}/messages/${lastEmailItem.id}.plain`
+  );
+
+  // Add the email text in the response payload
+  const emailTextBody = await emailTextResponse.text();
+  lastEmailItem.text = emailTextBody;
+
+  return lastEmailItem;
+}
+```
+
+!!! tip
+
+    Pela API do `mailcatcher`, precisamos primeiramente coletar a lista de emails da fila, mas o retorno dessa API não vai trazer o texto do e-mail. Então depois de identificarmos o Id o último e-mail (mais recente), enviamos um outro GET, mas adicionando o ID do email na URL. Essa request sim nos trará o corpo do email. E outro detalhe é que a lista de e-mails retornada na nossa primeira requisição é ordenada do mais velho para o mais recente. Por isso utilizamos o método `pop()`, para trazer o último elemento da lista
+
+Agora sim podemos invocar esse método no nosso teste, e fazer um assertion do conteúdo do e-mail. Nesse teste, vamos fazer o envio de dois e-mails, para garantir que estamos pegando sempre o último (mais recente):
+
+```javascript title="./tests/integration/email.test.js"
+import email from "infra/email.js";
+import orchestrator from "tests/orchestrator";
+
+beforeAll(async () => {
+  await orchestrator.deleteAllEmails();
+});
+
+describe("Test infra/email.js", () => {
+  test("send()", async () => {
+    await email.send({
+      from: "MeuBonsai <contato@meubonsai.app>",
+      to: "contato@brunononogaki.com",
+      subject: "Teste de email",
+      text: "Text de corpo",
+    });
+
+    await email.send({
+      from: "MeuBonsai <contato@meubonsai.app>",
+      to: "contato@brunononogaki.com",
+      subject: "Último email enviado",
+      text: "Text de corpo",
+    });
+
+    const lastEmail = await orchestrator.getLastEmail();
+    expect(lastEmail.sender).toBe("<contato@meubonsai.app>");
+    expect(lastEmail.recipients[0]).toBe("<contato@brunononogaki.com>");
+    expect(lastEmail.subject).toBe("Último email enviado");
+    expect(lastEmail.text).toBe("Text de corpo\n");
+  });
+});
+```
+
+## Esperando o serviço de e-mail subir
+
+Por fim, da mesma forma que fizemos o `waitForWebServer` no `orchestrator`, garantindo que os testes iniciariam somente depois de o webserver estar de pé, vamos fazer com o serviço de e-mail. Vamos adicionar o método `waitForEmailServer()`:
+
+```javascript title="./tests/orchestrator.js" hl_lines="3 19-31"
+async function waitForAllServices() {
+  await waitForWebServer();
+  await waitForEmailServer();
+
+  async function waitForWebServer() {
+    return retry(fetchStatusPage, {
+      retries: 100,
+      maxTimeout: 1000,
+    });
+
+    async function fetchStatusPage() {
+      const response = await fetch("http://localhost:3000/api/v1/status");
+      if (response.status !== 200) {
+        throw Error();
+      }
+    }
+  }
+
+  async function waitForEmailServer() {
+    return retry(fetchStatusPage, {
+      retries: 100,
+      maxTimeout: 1000,
+    });
+
+    async function fetchStatusPage() {
+      const response = await fetch(
+        `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}`
+      );
+      if (response.status !== 200) {
+        throw Error();
+      }
+    }
+  }
+}
+```
+
+E agora vamos adicionar isso no `beforeAll` dos testes:
+
+```javascript title="./tests/integration/email.test.js" hl_lines="6"
+import email from "infra/email.js";
+import orchestrator from "tests/orchestrator";
+
+beforeAll(async () => {
+  await orchestrator.deleteAllEmails();
+  await orchestrator.waitForAllServices();
+});
+```
+
+!!! success
+
+    Pronto, temos agora a infraestrutura de e-mails pronta, com os métodos sendo testados!
