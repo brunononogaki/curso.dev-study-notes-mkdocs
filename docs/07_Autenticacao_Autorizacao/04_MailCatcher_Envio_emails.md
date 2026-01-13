@@ -54,7 +54,7 @@ services:
     ```
 
     E agora esses comandos farão nos comunicarmos via SMTP:
-    ```bash hl_lines="1 3 5 7 9-12 14
+    ```bash hl_lines="1 3 5 7 9-12 14"
     HELO
     250 Ok EventMachine SMTP Server
     MAIL FROM:<bruno.nonogaki@gmail.com>
