@@ -36,6 +36,7 @@ nav:
       - 02. Criando o endpoint /user: 07_Autenticacao_Autorizacao/02_Endpoint_user.md
       - 03. Implementando o Logout: 07_Autenticacao_Autorizacao/03_Implementando_Logout.md
       - 04. Implementando o MailCatcher e configurando envio de e-mails: 07_Autenticacao_Autorizacao/04_MailCatcher_Envio_emails.md
+      - 05. Implementando a Ativação de Conta do Usuário: 07_Autenticacao_Autorizacao/05_Ativacao_do_Usuario.md
 theme:
   name: material
   palette:
