@@ -491,7 +491,7 @@ describe("Use case: Registration Flow (all successful)", () => {
 
 Então estamos testando se conseguimos rodar o `PATCH`, se ele está preenchendo o campo `used_at`, e se o usuário possui somente a feature `create:session`
 
-## Criando o controller `/activations/[token_id]`
+### Criando o controller `/activations/[token_id]`
 
 Agora vamos criar a pasta `activations/[token_id]` dentro de `api/v1` para criar a nossa rota, e criar o index.js dentro:
 
@@ -523,7 +523,7 @@ async function patchHandler(request, response) {
 De forma similar ao que fizemos na rota `api/v1/users/[username]`, usamos esse placeholder `[token_id]` para passarmos o token que queremos ativar.
 O controller então vai validar se o token existe e é válido, marcá-lo como usado (alterando o campo used_at), e depois ativar o usuário (atribuindo a feature `create:session`). O retorno no caso de sucesso será um `200 OK`, com os dados do token ativdado (com o `used_at` preenchido)
 
-## Criando os métodos nos models
+### Criando os métodos nos models
 
 Agora no model `activation.js`, vamos criar o método `markTokenAsUsed()`, que recebe o ID do token e altera o campo used_at dele:
 ```javascript title="./models/activation.js"
@@ -599,4 +599,3 @@ Tudo sem segredo nenhum, é tudo coisa que já fizemos em outros endpoints!
 !!! success
 
     Sucesso, o nosso sistema de ativação de contas já está funcionando. Agora podemos seguir para o usuário conseguir fazer o login, e acessar algum endpoint protegido na API!
-    
