@@ -599,3 +599,4 @@ Tudo sem segredo nenhum, é tudo coisa que já fizemos em outros endpoints!
 !!! success
 
     Sucesso, o nosso sistema de ativação de contas já está funcionando. Agora podemos seguir para o usuário conseguir fazer o login, e acessar algum endpoint protegido na API!
+    
