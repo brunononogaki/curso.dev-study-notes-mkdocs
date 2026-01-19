@@ -123,60 +123,130 @@ async function postHandler(request, response) {
 
     Olha só, agora caso a gente teste novamente o fluxo atribuindo o array de features em branco no `activateUserByUserId`, o teste de login vai falhar com um erro `403 Forbidden`! Mas vamos voltar a feature `create:session` nesse array porque isso era só um teste!
 
+## Corrigindo o teste de login
+
+Após essa implementação, o teste que tinhamos criado para o login vai falhar:
+
+```javascript title="./tests/integration/sessions/post.test.js"
+    test("With correct email and correct password", async () => {
+      const createdUser = await orchestrator.createUser({
+        email: "correct.email@email.com",
+        password: "senha-correta",
+      });
+
+      const response = await fetch("http://localhost:3000/api/v1/sessions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: activatedUser.email,
+          password: "senha-correta",
+        }),
+      });
+
+      expect(response.status).toBe(201);
+```
+
+Isso porque no teste a gente criava o usuário e logo em seguida tentava fazer o login. Precisamos incluir uma etapa intermediária que é ativar o usuário. Vamos fazer isso com mais um método no `orchestrator`:
+
+```javascript title="./tests/integration/sessions/post.test.js" hl_lines="7"
+    test("With correct email and correct password", async () => {
+      const createdUser = await orchestrator.createUser({
+        email: "correct.email@email.com",
+        password: "senha-correta",
+      });
+
+      const activatedUser = await orchestrator.activateUser(createdUser);
+
+      const response = await fetch("http://localhost:3000/api/v1/sessions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: activatedUser.email,
+          password: "senha-correta",
+        }),
+      });
+
+      expect(response.status).toBe(201);
+```
+
+E o método no orchestrator ficará assim:
+
+```javascript title="./tests/orchestrator.js"
+async function activateUser(userObject) {
+  return await activation.activateUserByUserId(userObject.id);
+}
+```
+
+## Implementando o teste `Get user information`
+
+Agora só está faltando implementar o teste `Get user information` do `registration-flow.test.js`. Esse teste vai rodar depois do login do usuário, e vai ser bem simples! Precisamos apenas fazer um GET em `/user` e validar o retorno.
+
+Mas antes disso, vamos injetar o usuário no controller de `/user` com os middlewares e validar se o usuário tem a feature `read:session`:
+
+```javascript title="./pages/api/v1/user/index.js
+import { createRouter } from "next-connect";
+import controller from "infra/controller.js";
+import user from "models/user.js";
+import session from "models/session.js";
+
+const router = createRouter();
+router.use(controller.injectAnonymousOrUser); // middleware
+router.get(controller.canRequest("read:session"), getHandler);
+
+...
+```
+
+E agora na ativação do usuário, vamos adicionar essa feature, além da `create:session` que ele já tinha:
+
+```javascript title="./models/activation.js" hl_lines="4"
+async function activateUserByUserId(userId) {
+  const activatedUser = await user.setFeatures(userId, [
+    "create:session",
+    "read:session", // <= Permitindo que um usuário ativado possa ler os dados de sua sessão
+  ]);
+  return activatedUser;
+}
+```
+
+Por fim, vamos criar os testes no registration-flow:
+
+```javascript title="./tests/integration/_use-cases/registration-flow.test.js"
+  test("Get user information", async () => {
+    const responseUserInformation = await fetch(
+      "http://localhost:3000/api/v1/user",
+      {
+        headers: {
+          Cookie: `session_id=${createSessionsResponseBody.token}`,
+        },
+      },
+    );
+    expect(responseUserInformation.status).toBe(200);
+    const responseUserInformationBody = await responseUserInformation.json();
+    expect(responseUserInformationBody).toEqual({
+      id: createUserResponseBody.id,
+      username: "RegistrationFlow",
+      email: createUserResponseBody.email,
+      features: ["create:session", "read:session"],
+      password: createUserResponseBody.password,
+      created_at: createUserResponseBody.created_at,
+      updated_at: responseUserInformationBody.updated_at,
+    });
+    expect(uuidVersion(responseUserInformationBody.id)).toBe(4);
+    expect(Date.parse(responseUserInformationBody.created_at)).not.toBeNaN();
+    expect(Date.parse(responseUserInformationBody.created_at)).not.toBeNaN();
+  });
+```
+
 !!! warning
 
-    Após essa implementação, o teste que tinhamos criado para o login vai falhar:
+    Alguns testes antigos vão começar a falhar. Primeiro que no teste de GET user precisaremos adicionar a ativação do usuário:
 
-    ```javascript title="./tests/integration/sessions/post.test.js"
-        test("With correct email and correct password", async () => {
-          const createdUser = await orchestrator.createUser({
-            email: "correct.email@email.com",
-            password: "senha-correta",
-          });
-
-          const response = await fetch("http://localhost:3000/api/v1/sessions", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email: activatedUser.email,
-              password: "senha-correta",
-            }),
-          });
-
-          expect(response.status).toBe(201);
+    ```javascript
+    const activatedUser = await orchestrator.activateUser(createdUser);
     ```
 
-    Isso porque no teste a gente criava o usuário e logo em seguida tentava fazer o login. Precisamos incluir uma etapa intermediária que é ativar o usuário. Vamos fazer isso com mais um método no `orchestrator`:
-
-    ```javascript title="./tests/integration/sessions/post.test.js" hl_lines="7"
-        test("With correct email and correct password", async () => {
-          const createdUser = await orchestrator.createUser({
-            email: "correct.email@email.com",
-            password: "senha-correta",
-          });
-
-          const activatedUser = await orchestrator.activateUser(createdUser);
-
-          const response = await fetch("http://localhost:3000/api/v1/sessions", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email: activatedUser.email,
-              password: "senha-correta",
-            }),
-          });
-
-          expect(response.status).toBe(201);
-    ```
-
-    E o método no orchestrator ficará assim:
-
-    ```javascript title="./tests/orchestrator.js"
-    async function activateUser(userObject) {
-      return await activation.activateUserByUserId(userObject.id);
-    }
-    ```
+    Além disso, a validação do retorno do usuário estava sendo `features: ["create:session"]`, e agora deverá ser `features: ["create:session", "read:session"]`
