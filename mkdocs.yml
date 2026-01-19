@@ -38,6 +38,8 @@ nav:
       - 04. Implementando o MailCatcher e configurando envio de e-mails: 07_Autenticacao_Autorizacao/04_MailCatcher_Envio_emails.md
       - 05. Implementando a Ativação de Conta do Usuário: 07_Autenticacao_Autorizacao/05_Ativacao_do_Usuario.md
       - 06. Implementando o Login do Usuário: 07_Autenticacao_Autorizacao/06_Login_do_Usuario.md
+      - 07. Implementando a Autorização: 07_Autenticacao_Autorizacao/07_Implementando_Autorizacao.md
+theme:
   name: material
   palette:
     - scheme: default
