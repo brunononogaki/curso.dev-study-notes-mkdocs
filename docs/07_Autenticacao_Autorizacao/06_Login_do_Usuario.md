@@ -60,7 +60,7 @@ Agora para injetar o usuário autenticado, a lógica é:
 async function injectAuthenticatedUser(request) {
   const sessionToken = request.cookies.session_id;
   const sessionObject = await session.findOneValidByToken(sessionToken);
-  const userObject = await user.findOneValidById(sessionObject.user_id);
+  const userObject = await user.findOneById(sessionObject.user_id);
 
   request.context = {
     ...request.context, // <= Para evitar sobrescrever o contexto, e sim adicionar a propriedade
