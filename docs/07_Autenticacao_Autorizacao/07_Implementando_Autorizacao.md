@@ -79,7 +79,7 @@ async function activateUserByUserId(userId) {
 
 Isso acontece porque não estamos validando se o `authenticatedUser` possui a feature `create:session` antes de invocarmos o `session.create()`. Vamos implementar esse bloqueio
 
-```javascript title="./pages/api/v1/sessions/index.js" hl_lines="4 7 26-30"
+```javascript title="./pages/api/v1/sessions/index.js" hl_lines="4 7 25-30"
 import { createRouter } from "next-connect";
 import controller from "infra/controller.js";
 import authentication from "models/authentication.js";
@@ -187,7 +187,7 @@ Agora só está faltando implementar o teste `Get user information` do `registra
 
 Mas antes disso, vamos injetar o usuário no controller de `/user` com os middlewares e validar se o usuário tem a feature `read:session`:
 
-```javascript title="./pages/api/v1/user/index.js
+```javascript title="./pages/api/v1/user/index.js"
 import { createRouter } from "next-connect";
 import controller from "infra/controller.js";
 import user from "models/user.js";
