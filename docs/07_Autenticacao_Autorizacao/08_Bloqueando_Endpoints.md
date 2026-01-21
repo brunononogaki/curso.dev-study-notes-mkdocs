@@ -309,3 +309,101 @@ describe("PATCH to /api/v1/activations/[token_id]", () => {
   });
 });
 ```
+
+## Bloqueando o endpoint `/users`
+
+Para bloquear o endpoint de criação de usuários, limitando apenas para quem tiver a feature `create:user`, não tem segredo nenhum:
+
+```javascript title="./pages/api/v1/users/index.js" hl_lines="7-8"
+import { createRouter } from "next-connect";
+import controller from "infra/controller.js";
+import user from "models/user.js";
+import activation from "models/activation";
+
+const router = createRouter();
+router.use(controller.injectAnonymousOrUser);
+router.post(controller.canRequest("create:user"), postHandler);
+
+export default router.handler(controller.errorHandler);
+
+async function postHandler(request, response) {
+  const userInputValues = request.body;
+  const newUser = await user.create(userInputValues);
+
+  const activationToken = await activation.create(newUser.id);
+  await activation.sendEmailToUser(newUser, activationToken);
+  return response.status(201).json(newUser);
+}
+```
+
+Só isso já basta, porque o nosso código já estava atribuindo essa permissão para os usuários anônimos:
+```javascript title="./infra/controller.js"
+async function injectAnonymousUser(request) {
+  const anonymousUserObject = {
+    features: ["read:activation_token", "create:session", "create:user"],
+  };
+
+  request.context = {
+    ...request.context,
+    user: anonymousUserObject,
+  };
+}
+```
+
+Mas depois que o usuário faz a ativação, ele perde essa feature:
+```javascript title="./models/activation.js" hl_lines="11-14"
+async function activateUserByUserId(userId) {
+  const userToActivate = await user.findOneById(userId);
+
+  if (!authorization.can(userToActivate, "read:activation_token")) {
+    throw new ForbiddenError({
+      message: "Você não pode mais utilizar tokens de ativação",
+      action: "Entre em contato com o suporte.",
+    });
+  }
+
+  const activatedUser = await user.setFeatures(userId, [
+    "create:session",
+    "read:session",
+  ]);
+  return activatedUser;
+}
+```
+
+Portanto, podemos criar mais um test no `users/post.test.js` cobrindo esse caso de um usuário logado tentando criar um outro usuário, situação essa que ele deveria receber um `403 Forbidden`:
+
+```javascript title="./tests/integration/api/v1/users/post.test.js"
+...
+  describe("Default user", () => {
+    test("With unique and valid data", async () => {
+      const user1 = await orchestrator.createUser();
+      await orchestrator.activateUser(user1);
+      const user1SessionObject = await orchestrator.createSession(user1.id);
+
+      const user2Response = await fetch("http://localhost:3000/api/v1/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Cookie: `session_id=${user1SessionObject.token}`,
+        },
+        body: JSON.stringify({
+          username: "usuariologado",
+          password: "senha123",
+        }),
+      });
+      expect(user2Response.status).toBe(403);
+      const response2Body = await user2Response.json();
+      expect(response2Body).toEqual({
+        name: "ForbiddenError",
+        message: "Você não possui permissão para executar esta ação.",
+        action:
+          'Verifique se o seu usuário possui a feature: "create:user"',
+        status_code: 403,
+      });
+    });
+  });
+```
+
+!!! success
+
+    Pronto, agora os nossos endpoints de `/activations` e `/users` já estão sendo bloqueados para quem não possui o devido acesso!
