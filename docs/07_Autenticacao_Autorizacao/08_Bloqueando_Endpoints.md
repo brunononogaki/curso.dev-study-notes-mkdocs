@@ -100,7 +100,7 @@ sync function activateUserByUserId(userId) {
 
 Mas para isso funcionar, lá no controller a gente tem que inverter a chamada dos métodos, fazendo o `activateUserByUserId` primeiro, e depois o `markTokenAsUsed`, que será chamado apenas se o usuário conseguir ser ativado:
 
-```javascript title="./pages/api/v1/activations/[token_id]/index.js" hl_lines="6-7 9-11"
+```javascript title="./pages/api/v1/activations/[token_id]/index.js" hl_lines="7-8 10-12"
 async function patchHandler(request, response) {
   const activationTokenId = request.query.token_id;
 
@@ -120,7 +120,7 @@ async function patchHandler(request, response) {
 
 ## Testando o endpoint `activations`
 
-Atualmente o nosso endpoint de ativação só está sendo testado no fluxo do registration-flow. Vamos criar alguns testes para cobrir esse endpoint:
+Atualmente o nosso endpoint de ativação só está sendo testado no fluxo do registration-flow. Vamos criar alguns testes para cobrir esse endpoint (nada diferente do que já fizemos até agora):
 
 ```javascript title="./tests/integration/api/v1/activations/[token_id]/patch.test.js"
 import orchestrator from "tests/orchestrator";
