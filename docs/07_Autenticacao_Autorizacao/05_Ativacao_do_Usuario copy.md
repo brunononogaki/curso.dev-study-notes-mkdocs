@@ -516,7 +516,7 @@ async function patchHandler(request, response) {
 
   await activation.activateUserByUserId(validActivationToken.user_id);
 
-  return response.status(200).json({ token: usedActivationToken });
+  return response.status(200).json(usedActivationToken);
 }
 ```
 
